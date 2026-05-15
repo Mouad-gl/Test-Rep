@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inconsolata', monospace;
+  background-color: #1a1025;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1025;
+}
+::-webkit-scrollbar-thumb {
+  background: #f97316;
+  border-radius: 3px;
+}
+
+/* Ticket perforation effect */
+.ticket-perforation {
+  position: relative;
+}
+.ticket-perforation::before,
+.ticket-perforation::after {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background: #1a1025;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+.ticket-perforation::before {
+  left: -16px;
+}
+.ticket-perforation::after {
+  right: -16px;
+}
+
+/* Dashed divider */
+.ticket-dashed {
+  border-top: 2px dashed rgba(255,255,255,0.15);
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid #f97316;
+  outline-offset: 2px;
+}
+
+/* Drag over state */
+.drag-over {
+  border-color: #f97316 !important;
+  background-color: rgba(249, 115, 22, 0.05) !important;
+}
