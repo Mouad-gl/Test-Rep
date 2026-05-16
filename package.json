@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.11",
-    "apify-client": "^2.23.3",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
