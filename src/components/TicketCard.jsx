@@ -11,9 +11,9 @@ function GithubIcon({ className = '' }) {
 }
 
 export default function TicketCard({ formData }) {
-  const { fullName, email, github, avatarPreview } = formData
+  const { fullName, github, avatarPreview, ticketNumber: ticketProp } = formData
   const ticketNumber = useRef(
-    Math.floor(Math.random() * 900000 + 100000).toString().padStart(6, '0')
+    ticketProp ?? Math.floor(Math.random() * 900000 + 100000).toString().padStart(6, '0')
   )
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, brightness: 1 })
   const [downloading, setDownloading] = useState(false)
