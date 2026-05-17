@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback } from 'react'
-import emailjs from '@emailjs/browser'
 
 const MAX_FILE_SIZE = 500 * 1024
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif']
@@ -45,7 +44,6 @@ export default function TicketForm({ onSubmit }) {
   const [captcha, setCaptcha] = useState(generateCaptcha)
   const [captchaInput, setCaptchaInput] = useState('')
   const [honeypot, setHoneypot] = useState('')
-  const [sending, setSending] = useState(false)
   const fileInputRef = useRef(null)
 
   const processFile = (file) => {
@@ -99,7 +97,7 @@ export default function TicketForm({ onSubmit }) {
     return errs
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     if (honeypot) return
     if (!checkRateLimit()) {
@@ -117,29 +115,9 @@ export default function TicketForm({ onSubmit }) {
       document.getElementById(Object.keys(errs)[0])?.focus()
       return
     }
-    setSending(true)
     const ticketNumber = generateTicketNumber()
     const github = fields.github.startsWith('@') ? fields.github : `@${fields.github}`
-    try {
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-      if (serviceId && templateId && publicKey) {
-        await emailjs.send(serviceId, templateId, {
-          to_email: fields.email,
-          to_name: fields.fullName,
-          full_name: fields.fullName,
-          github,
-          ticket_number: ticketNumber,
-        }, { publicKey })
-      }
-      onSubmit({ ...fields, github, avatarPreview, ticketNumber })
-    } catch (err) {
-      console.error('EmailJS error:', err)
-      onSubmit({ ...fields, github, avatarPreview, ticketNumber })
-    } finally {
-      setSending(false)
-    }
+    onSubmit({ ...fields, github, avatarPreview, ticketNumber })
   }
 
   const inputClass = (field) => `
@@ -149,9 +127,7 @@ export default function TicketForm({ onSubmit }) {
   `
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
+    <form onSubmit={handleSubmit} noValidate
       className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl"
       aria-label="Conference ticket registration form"
     >
@@ -188,9 +164,7 @@ export default function TicketForm({ onSubmit }) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
               </div>
-              <p className="text-[#b8a9c9] text-sm">
-                <span className="text-orange-400 font-semibold">Click to upload</span> or drag and drop
-              </p>
+              <p className="text-[#b8a9c9] text-sm"><span className="text-orange-400 font-semibold">Click to upload</span> or drag and drop</p>
               <p className="text-[#7a6e8a] text-xs">JPG, PNG, GIF — max 500KB</p>
             </div>
           </div>
@@ -225,7 +199,7 @@ export default function TicketForm({ onSubmit }) {
           value={fields.email} onChange={handleChange}
           aria-describedby={errors.email ? 'email-error' : 'email-hint'}
           aria-invalid={!!errors.email} placeholder="example@email.com" className={inputClass('email')} />
-        {errors.email ? <ErrorMsg id="email-error" msg={errors.email} /> : <p id="email-hint" className="mt-1.5 text-[#7a6e8a] text-xs">We'll send your ticket confirmation to this address.</p>}
+        {errors.email ? <ErrorMsg id="email-error" msg={errors.email} /> : <p id="email-hint" className="mt-1.5 text-[#7a6e8a] text-xs">Used to personalise your ticket.</p>}
       </div>
 
       <div className="mb-6">
@@ -243,40 +217,26 @@ export default function TicketForm({ onSubmit }) {
 
       <div className="mb-7 p-4 rounded-xl bg-white/5 border border-white/10">
         <p className="text-white text-sm font-semibold mb-3">
-          Quick check — what is{' '}
-          <span className="text-orange-400 font-bold">{captcha.a} + {captcha.b}</span>?
+          Quick check — what is <span className="text-orange-400 font-bold">{captcha.a} + {captcha.b}</span>?
         </p>
-        <input
-          id="captcha" type="number" inputMode="numeric"
-          value={captchaInput}
+        <input id="captcha" type="number" inputMode="numeric" value={captchaInput}
           onChange={(e) => { setCaptchaInput(e.target.value); if (errors.captcha) setErrors((p) => { const n = { ...p }; delete n.captcha; return n }) }}
           aria-label={`CAPTCHA: What is ${captcha.a} plus ${captcha.b}?`}
           aria-describedby={errors.captcha ? 'captcha-error' : undefined}
-          aria-invalid={!!errors.captcha}
-          placeholder="Enter your answer"
+          aria-invalid={!!errors.captcha} placeholder="Enter your answer"
           className={`w-full bg-white/5 border rounded-xl px-4 py-2.5 text-white placeholder-[#7a6e8a] text-sm
             focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all
-            ${errors.captcha ? 'border-red-400 bg-red-500/5' : 'border-white/10'}`}
-        />
+            ${errors.captcha ? 'border-red-400 bg-red-500/5' : 'border-white/10'}`} />
         {errors.captcha && <ErrorMsg id="captcha-error" msg={errors.captcha} />}
       </div>
 
-      <button type="submit" disabled={sending}
+      <button type="submit"
         className="w-full bg-orange-500 hover:bg-orange-400 active:bg-orange-600
           text-white font-bold text-base rounded-xl py-3.5 px-6
           transition-all duration-200 shadow-lg shadow-orange-500/20
-          focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-[#1a1025]
-          disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-[#1a1025]"
       >
-        {sending ? (
-          <>
-            <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"/>
-            </svg>
-            Sending your ticket…
-          </>
-        ) : 'Generate My Ticket'}
+        Generate My Ticket
       </button>
     </form>
   )
