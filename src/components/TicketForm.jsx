@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback } from 'react'
-import emailjs from '@emailjs/browser'
 
 const MAX_FILE_SIZE = 500 * 1024
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif']
@@ -45,7 +44,6 @@ export default function TicketForm({ onSubmit }) {
   const [captcha, setCaptcha] = useState(generateCaptcha)
   const [captchaInput, setCaptchaInput] = useState('')
   const [honeypot, setHoneypot] = useState('')
-  const [sending, setSending] = useState(false)
   const fileInputRef = useRef(null)
 
   const processFile = (file) => {
@@ -99,7 +97,7 @@ export default function TicketForm({ onSubmit }) {
     return errs
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
 
     // Honeypot — silent drop if bot filled the hidden field
@@ -127,33 +125,9 @@ export default function TicketForm({ onSubmit }) {
       return
     }
 
-    setSending(true)
     const ticketNumber = generateTicketNumber()
     const github = fields.github.startsWith('@') ? fields.github : `@${fields.github}`
-
-    try {
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-
-      if (serviceId && templateId && publicKey) {
-        await emailjs.send(serviceId, templateId, {
-          to_email: fields.email,
-          to_name: fields.fullName,
-          full_name: fields.fullName,
-          github,
-          ticket_number: ticketNumber,
-        }, { publicKey })
-      }
-
-      onSubmit({ ...fields, github, avatarPreview, ticketNumber })
-    } catch (err) {
-      console.error('EmailJS error:', err)
-      // Still show the ticket even if email fails
-      onSubmit({ ...fields, github, avatarPreview, ticketNumber })
-    } finally {
-      setSending(false)
-    }
+    onSubmit({ ...fields, github, avatarPreview, ticketNumber })
   }
 
   const inputClass = (field) => `
@@ -305,22 +279,12 @@ export default function TicketForm({ onSubmit }) {
 
       <button
         type="submit"
-        disabled={sending}
         className="w-full bg-orange-500 hover:bg-orange-400 active:bg-orange-600
           text-white font-bold text-base rounded-xl py-3.5 px-6
           transition-all duration-200 shadow-lg shadow-orange-500/20
-          focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-[#1a1025]
-          disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-[#1a1025]"
       >
-        {sending ? (
-          <>
-            <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"/>
-            </svg>
-            Sending your ticket…
-          </>
-        ) : 'Generate My Ticket'}
+        Generate My Ticket
       </button>
     </form>
   )
