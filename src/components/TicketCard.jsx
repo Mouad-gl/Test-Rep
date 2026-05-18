@@ -1,6 +1,4 @@
 import { useRef, useState } from 'react'
-import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
 
 function GithubIcon({ className = '' }) {
   return (
@@ -16,27 +14,9 @@ export default function TicketCard({ formData }) {
     ticketProp ?? Math.floor(Math.random() * 900000 + 100000).toString().padStart(6, '0')
   )
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, brightness: 1 })
-  const [downloading, setDownloading] = useState(false)
-
-  const handleDownloadPDF = async () => {
-    const card = cardRef.current
-    if (!card || downloading) return
-    setDownloading(true)
-    // Flatten the card (no 3D tilt) while capturing
-    const prev = card.style.transform
-    card.style.transform = 'none'
-    try {
-      const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: null })
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width / 3, canvas.height / 3] })
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 3, canvas.height / 3)
-      pdf.save(`coding-conf-2025-ticket-${ticketNumber.current}.pdf`)
-    } finally {
-      card.style.transform = prev
-      setDownloading(false)
-    }
-  }
   const cardRef = useRef(null)
+
+  const handleDownloadPDF = () => window.print()
 
   const handleMouseMove = (e) => {
     const card = cardRef.current
@@ -66,6 +46,7 @@ export default function TicketCard({ formData }) {
       onMouseLeave={handleMouseLeave}
     >
       <article
+        id="ticket-print"
         ref={cardRef}
         aria-label={`Conference ticket for ${fullName}`}
         className="relative w-full rounded-2xl overflow-hidden transition-transform duration-100 ease-out shadow-2xl"
@@ -175,25 +156,12 @@ export default function TicketCard({ formData }) {
       <div className="flex justify-center mt-5">
         <button
           onClick={handleDownloadPDF}
-          disabled={downloading}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white font-semibold text-sm transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-orange-500/20"
+          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white font-semibold text-sm transition-colors duration-200 shadow-lg shadow-orange-500/20"
         >
-          {downloading ? (
-            <>
-              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"/>
-              </svg>
-              Generating PDF…
-            </>
-          ) : (
-            <>
-              <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/>
-              </svg>
-              Download Ticket PDF
-            </>
-          )}
+          <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/>
+          </svg>
+          Download Ticket PDF
         </button>
       </div>
     </div>
