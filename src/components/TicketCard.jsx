@@ -9,7 +9,7 @@ function GithubIcon({ className = '' }) {
 }
 
 export default function TicketCard({ formData }) {
-  const { fullName, github, avatarPreview, ticketNumber: ticketProp } = formData
+  const { fullName, github, avatarPreview, ticketNumber: ticketProp, event } = formData
   const ticketNumber = useRef(
     ticketProp ?? Math.floor(Math.random() * 900000 + 100000).toString().padStart(6, '0')
   )
@@ -54,40 +54,46 @@ export default function TicketCard({ formData }) {
           transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
           filter: `brightness(${tilt.brightness})`,
           transformStyle: 'preserve-3d',
-          background: 'linear-gradient(135deg, #0a1f15 0%, #0d1a11 45%, #060e08 100%)',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(110,231,183,0.08)',
+          background: event
+            ? `linear-gradient(135deg, ${event.color.from} 0%, ${event.color.to} 100%)`
+            : 'linear-gradient(135deg, #0a1f15 0%, #0d1a11 45%, #060e08 100%)',
+          boxShadow: `0 25px 60px rgba(0,0,0,0.7), 0 0 0 1px ${event ? event.color.accent + '14' : 'rgba(110,231,183,0.08)'}`,
         }}
       >
+        {/* Background pattern inside ticket */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           <svg className="absolute inset-0 w-full h-full opacity-[0.07]" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="ticket-squiggly" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
                 <path d="M0 25 Q6.25 15 12.5 25 Q18.75 35 25 25 Q31.25 15 37.5 25 Q43.75 35 50 25"
-                  fill="none" stroke="#6ee7b7" strokeWidth="1.5"/>
+                  fill="none" stroke={event?.color.accent ?? '#6ee7b7'} strokeWidth="1.5"/>
                 <path d="M0 45 Q6.25 35 12.5 45 Q18.75 55 25 45 Q31.25 35 37.5 45 Q43.75 55 50 45"
-                  fill="none" stroke="#6ee7b7" strokeWidth="1.5"/>
+                  fill="none" stroke={event?.color.accent ?? '#6ee7b7'} strokeWidth="1.5"/>
                 <path d="M0 5 Q6.25 -5 12.5 5 Q18.75 15 25 5 Q31.25 -5 37.5 5 Q43.75 15 50 5"
-                  fill="none" stroke="#6ee7b7" strokeWidth="1.5"/>
+                  fill="none" stroke={event?.color.accent ?? '#6ee7b7'} strokeWidth="1.5"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#ticket-squiggly)" />
           </svg>
-          <div className="absolute -top-20 -right-20 w-64 h-64 bg-emerald-500 rounded-full opacity-[0.12] blur-3xl" />
-          <div className="absolute -bottom-20 -left-10 w-48 h-48 bg-cyan-600 rounded-full opacity-[0.08] blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full opacity-[0.15] blur-3xl" style={{ background: event?.color.accent ?? '#6ee7b7' }} />
+          <div className="absolute -bottom-20 -left-10 w-48 h-48 rounded-full opacity-[0.08] blur-3xl" style={{ background: event?.color.accent ?? '#2dd4bf' }} />
         </div>
 
         <div className="relative z-10 p-6 sm:p-8">
+          {/* Top row: event info + ticket number */}
           <div className="flex items-start justify-between mb-8 gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 shrink-0">
-                  <polygon points="18,4 32,28 4,28" fill="none" stroke="#6ee7b7" strokeWidth="2.5" strokeLinejoin="round"/>
-                  <polygon points="18,11 27,25 9,25" fill="#6ee7b7" opacity="0.4"/>
-                  <line x1="18" y1="4" x2="18" y2="28" stroke="#6ee7b7" strokeWidth="1.5" opacity="0.7"/>
+                  <polygon points="18,4 32,28 4,28" fill="none" stroke={event?.color.accent ?? '#6ee7b7'} strokeWidth="2.5" strokeLinejoin="round"/>
+                  <polygon points="18,11 27,25 9,25" fill={event?.color.accent ?? '#6ee7b7'} opacity="0.4"/>
+                  <line x1="18" y1="4" x2="18" y2="28" stroke={event?.color.accent ?? '#6ee7b7'} strokeWidth="1.5" opacity="0.7"/>
                 </svg>
                 <span className="text-white text-lg font-bold tracking-widest uppercase">coding conf</span>
               </div>
-              <p className="text-gray-500 text-sm">Jan 31, 2025 / Austin, TX</p>
+              <p className="text-gray-500 text-sm">
+                {event ? `${event.date} / ${event.location.split(',')[0]}` : 'Jan 31, 2025 / Austin, TX'}
+              </p>
             </div>
 
             <div
@@ -99,6 +105,7 @@ export default function TicketCard({ formData }) {
             </div>
           </div>
 
+          {/* Dashed divider */}
           <div className="relative my-0" aria-hidden="true">
             <div className="border-t-2 border-dashed border-white/[0.08] relative">
               <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-[#0d0d0d] rounded-full" />
@@ -106,6 +113,7 @@ export default function TicketCard({ formData }) {
             </div>
           </div>
 
+          {/* Bottom row: avatar + name + github */}
           <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               {avatarPreview ? (
