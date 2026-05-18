@@ -39,10 +39,7 @@ export default function Header({
           className="flex items-center gap-2.5 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-lg"
           aria-label="Go to home"
         >
-          <img src="/Test-Rep/logo.svg" alt="Coding Conf logo" className="w-7 h-8" />
-          <span className="text-white font-bold tracking-widest uppercase text-sm hidden sm:block">
-            coding conf
-          </span>
+          <img src="/Test-Rep/logo.svg" alt="Coding Conf" className="h-8 w-auto" />
         </button>
 
         <div className="flex items-center gap-1">
