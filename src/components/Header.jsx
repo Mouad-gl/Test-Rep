@@ -1,6 +1,21 @@
 import { useState } from 'react'
 import { categories, tagsByCategory } from '../data/events'
 
+function BrandLogo({ className = 'w-9 h-10' }) {
+  return (
+    <svg className={className} viewBox="0 0 88 98" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      {/* Teal — top arm + upper spine */}
+      <polygon points="0,0 56,0 72,16 72,44 36,44 36,36 0,36" fill="#1AB88C"/>
+      {/* Teal dark overlap — mid-spine top */}
+      <polygon points="0,36 36,36 36,44 0,44" fill="#0D9270"/>
+      {/* Pink dark overlap — mid-spine bottom */}
+      <polygon points="0,44 36,44 36,52 0,52" fill="#C40D4A"/>
+      {/* Pink — lower spine + bottom arm */}
+      <polygon points="0,52 36,52 36,62 72,62 72,82 56,98 0,98" fill="#F0135A"/>
+    </svg>
+  )
+}
+
 export default function Header({
   view,
   onNavigateHome,
@@ -23,14 +38,10 @@ export default function Header({
         {/* Logo */}
         <button
           onClick={onNavigateHome}
-          className="flex items-center gap-2.5 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-lg"
+          className="flex items-center gap-2.5 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-lg"
           aria-label="Go to home"
         >
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7">
-            <polygon points="18,4 32,28 4,28" fill="none" stroke="#6ee7b7" strokeWidth="2.5" strokeLinejoin="round"/>
-            <polygon points="18,11 27,25 9,25" fill="#6ee7b7" opacity="0.35"/>
-            <line x1="18" y1="4" x2="18" y2="28" stroke="#6ee7b7" strokeWidth="1.5" opacity="0.6"/>
-          </svg>
+          <BrandLogo className="w-8 h-9" />
           <span className="text-white font-bold tracking-widest uppercase text-sm hidden sm:block">
             coding conf
           </span>
