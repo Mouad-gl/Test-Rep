@@ -39,10 +39,7 @@ export default function Header({
           className="flex items-center gap-2.5 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-lg"
           aria-label="Go to home"
         >
-          <img src="/Test-Rep/logo.svg" alt="Coding Conf logo" className="w-7 h-8" />
-          <span className="text-white font-bold tracking-widest uppercase text-sm hidden sm:block">
-            coding conf
-          </span>
+          <img src="/Test-Rep/logo.svg" alt="Coding Conf" className="h-8 w-auto" />
         </button>
 
         <div className="flex items-center gap-1">
@@ -78,7 +75,6 @@ export default function Header({
           className="max-w-7xl mx-auto px-4 sm:px-6 h-11 flex items-center gap-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {/* Category tabs — scrollable on narrow screens */}
           <div
             className="flex items-center gap-0.5 flex-1 min-w-0 overflow-x-auto"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -99,10 +95,8 @@ export default function Header({
             ))}
           </div>
 
-          {/* Vertical divider */}
           <div className="hidden sm:block w-px h-5 bg-white/[0.08] shrink-0 mx-2" />
 
-          {/* Search — desktop only, mobile is in drawer */}
           <div className="hidden sm:block shrink-0">
             <div className="relative">
               <svg
@@ -123,7 +117,6 @@ export default function Header({
           </div>
         </div>
 
-        {/* ── Topic tag bar (home only, when tags exist) ── */}
         {view === 'home' && tags.length > 0 && (
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 pb-2 flex items-center gap-1.5 overflow-x-auto"
@@ -146,7 +139,6 @@ export default function Header({
         )}
       </div>
 
-      {/* ── Mobile drawer ── */}
       {mobileOpen && (
         <div className="md:hidden border-t border-white/[0.07] px-4 py-3 flex flex-col gap-2">
           <div className="relative">
