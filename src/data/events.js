@@ -80,3 +80,12 @@ export const events = [
 ]
 
 export const categories = ['All', 'Conference', 'Summit', 'Hackathon', 'Workshop', 'Meetup']
+
+export const tagsByCategory = {
+  All: ['AI', 'Web Dev', 'DevOps', 'Security', 'Open Source', 'Cloud', 'React'],
+  Conference: ['Web Dev', 'AI', 'Networking', 'Open Source'],
+  Summit: ['AI', 'Machine Learning', 'Research', 'Security', 'Zero Trust'],
+  Hackathon: ['Open Source', 'Collaboration', 'Community', 'Git'],
+  Workshop: ['React', 'Next.js', 'CSS', 'Performance'],
+  Meetup: ['DevOps', 'Cloud', 'Kubernetes', 'CI/CD'],
+}

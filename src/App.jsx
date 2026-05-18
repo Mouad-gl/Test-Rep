@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import Header from './components/Header'
 import TicketForm from './components/TicketForm'
 import TicketCard from './components/TicketCard'
 import EventCard from './components/EventCard'
 import EventModal from './components/EventModal'
 import BackgroundPattern from './components/BackgroundPattern'
-import { events, categories } from './data/events'
+import { events } from './data/events'
 import './App.css'
 
 export default function App() {
@@ -13,10 +14,21 @@ export default function App() {
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [formData, setFormData] = useState(null)
   const [activeCategory, setActiveCategory] = useState('All')
+  const [activeTag, setActiveTag] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const filteredEvents = activeCategory === 'All'
-    ? events
-    : events.filter((e) => e.category === activeCategory)
+  const filteredEvents = events.filter((e) => {
+    const matchCat = activeCategory === 'All' || e.category === activeCategory
+    const matchTag = !activeTag || e.tags.includes(activeTag)
+    const q = searchQuery.toLowerCase()
+    const matchSearch =
+      !q ||
+      e.title.toLowerCase().includes(q) ||
+      e.location.toLowerCase().includes(q) ||
+      e.tags.some((t) => t.toLowerCase().includes(q)) ||
+      e.description.toLowerCase().includes(q)
+    return matchCat && matchTag && matchSearch
+  })
 
   const handleGetTicket = (event) => {
     setSelectedEvent(event)
@@ -35,71 +47,87 @@ export default function App() {
     setFormData(null)
   }
 
+  const handleCategoryChange = (cat) => {
+    setActiveCategory(cat)
+    setActiveTag(null)
+  }
+
   return (
-    <div className="relative min-h-screen bg-[#0d0d0d] overflow-hidden font-sans">
+    <div className="relative min-h-screen bg-[#0d0d0d] font-sans">
       <BackgroundPattern />
 
-      <div className="relative z-10 flex flex-col items-center min-h-screen px-4 py-10">
+      <Header
+        view={view}
+        onNavigateHome={handleBack}
+        searchQuery={searchQuery}
+        onSearchChange={(q) => { setSearchQuery(q); if (view !== 'home') handleBack() }}
+        activeCategory={activeCategory}
+        onCategoryChange={handleCategoryChange}
+        activeTag={activeTag}
+        onTagChange={setActiveTag}
+      />
 
-        {/* Logo */}
-        <div className="mb-10 flex items-center gap-3">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-9 h-9">
-            <polygon points="18,4 32,28 4,28" fill="none" stroke="#6ee7b7" strokeWidth="2.5" strokeLinejoin="round"/>
-            <polygon points="18,11 27,25 9,25" fill="#6ee7b7" opacity="0.35"/>
-            <line x1="18" y1="4" x2="18" y2="28" stroke="#6ee7b7" strokeWidth="1.5" opacity="0.6"/>
-          </svg>
-          <span className="text-white text-xl font-bold tracking-widest uppercase">coding conf</span>
-        </div>
+      <main className="relative z-10">
 
-        {/* ── HOME VIEW ── */}
+        {/* ── HOME ── */}
         {view === 'home' && (
-          <div className="w-full max-w-6xl">
-            {/* Hero */}
-            <div className="text-center mb-10 px-2">
-              <h1 className="text-white text-4xl sm:text-5xl font-extrabold leading-tight mb-4">
-                Upcoming <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Events</span>
-              </h1>
-              <p className="text-gray-500 text-base sm:text-lg max-w-xl mx-auto">
-                Discover conferences, workshops, hackathons, and meetups for developers worldwide.
-              </p>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+            {/* Page title row */}
+            <div className="flex items-end justify-between mb-6 gap-4">
+              <div>
+                <h1 className="text-white text-2xl sm:text-3xl font-extrabold leading-tight">
+                  {searchQuery
+                    ? <>Results for <span className="text-emerald-400">"{searchQuery}"</span></>
+                    : activeCategory === 'All'
+                    ? <>Upcoming <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Events</span></>
+                    : <>{activeCategory} <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Events</span></>}
+                </h1>
+                <p className="text-gray-600 text-sm mt-1">
+                  {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
+                  {activeTag && <> · <span className="text-gray-500">{activeTag}</span></>}
+                </p>
+              </div>
+
+              {/* Sort placeholder */}
+              <div className="shrink-0 hidden sm:flex items-center gap-2 text-gray-600 text-sm">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                </svg>
+                <span>Soonest first</span>
+              </div>
             </div>
 
-            {/* Category filters */}
-            <div className="flex items-center gap-2 flex-wrap justify-center mb-8">
-              {categories.map((cat) => (
+            {/* Event grid */}
+            {filteredEvents.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {filteredEvents.map((event) => (
+                  <EventCard key={event.id} event={event} onClick={setModalEvent} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                  </svg>
+                </div>
+                <p className="text-gray-500 text-sm">No events match your search.</p>
                 <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${
-                    activeCategory === cat
-                      ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                      : 'bg-white/[0.04] border-white/[0.08] text-gray-400 hover:border-white/20 hover:text-white'
-                  }`}
+                  onClick={() => { setSearchQuery(''); setActiveCategory('All'); setActiveTag(null) }}
+                  className="mt-3 text-emerald-400 text-sm hover:underline underline-offset-4"
                 >
-                  {cat}
+                  Clear filters
                 </button>
-              ))}
-            </div>
-
-            {/* Events grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredEvents.map((event) => (
-                <EventCard key={event.id} event={event} onClick={setModalEvent} />
-              ))}
-            </div>
-
-            {filteredEvents.length === 0 && (
-              <div className="text-center py-20 text-gray-600">
-                No events in this category yet.
               </div>
             )}
           </div>
         )}
 
-        {/* ── FORM VIEW ── */}
+        {/* ── FORM ── */}
         {view === 'form' && (
-          <div className="w-full max-w-lg">
-            {/* Back */}
+          <div className="max-w-lg mx-auto px-4 sm:px-6 py-8">
+
             <button
               onClick={handleBack}
               className="flex items-center gap-1.5 text-gray-600 hover:text-gray-400 text-sm mb-6 transition-colors"
@@ -110,29 +138,26 @@ export default function App() {
               Back to events
             </button>
 
-            {/* Event context banner */}
+            {/* Selected event chip */}
             {selectedEvent && (
               <div
-                className="flex items-center gap-4 p-4 rounded-xl border mb-6"
-                style={{
-                  background: `${selectedEvent.color.from}cc`,
-                  borderColor: `${selectedEvent.color.accent}25`,
-                }}
+                className="flex items-center gap-3 p-3.5 rounded-xl border mb-6"
+                style={{ background: `${selectedEvent.color.from}cc`, borderColor: `${selectedEvent.color.accent}25` }}
               >
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+                  className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border"
                   style={{ background: `${selectedEvent.color.accent}15`, borderColor: `${selectedEvent.color.accent}30` }}
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke={selectedEvent.color.accent} strokeWidth={1.5}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={selectedEvent.color.accent} strokeWidth={1.8}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
                   </svg>
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-white text-sm font-semibold truncate">{selectedEvent.title}</p>
                   <p className="text-gray-500 text-xs">{selectedEvent.date} · {selectedEvent.location.split(',')[0]}</p>
                 </div>
                 <span
-                  className="text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ml-auto"
+                  className="text-xs font-bold px-2.5 py-1 rounded-full shrink-0"
                   style={{ background: `${selectedEvent.color.accent}20`, color: selectedEvent.color.accent }}
                 >
                   {selectedEvent.price}
@@ -140,34 +165,30 @@ export default function App() {
               </div>
             )}
 
-            <div className="text-center mb-8 px-2">
-              <h1 className="text-white text-3xl font-extrabold leading-tight mb-3">
-                Register for your ticket
-              </h1>
-              <p className="text-gray-500 text-sm">
-                Fill in your details to generate a personalized ticket.
-              </p>
+            <div className="mb-6">
+              <h1 className="text-white text-2xl font-extrabold leading-tight">Register for your ticket</h1>
+              <p className="text-gray-500 text-sm mt-1">Fill in your details to generate a personalized ticket.</p>
             </div>
 
             <TicketForm onSubmit={handleFormSubmit} />
           </div>
         )}
 
-        {/* ── TICKET VIEW ── */}
+        {/* ── TICKET ── */}
         {view === 'ticket' && formData && (
-          <div className="w-full max-w-2xl">
-            <div className="text-center mb-10 px-2">
-              <h1 className="text-white text-3xl sm:text-4xl font-extrabold leading-tight mb-4">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+            <div className="text-center mb-10">
+              <h1 className="text-white text-3xl sm:text-4xl font-extrabold leading-tight mb-3">
                 Congrats,{' '}
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
                   {formData.fullName}
                 </span>
                 !
               </h1>
-              <p className="text-gray-500 text-base">
+              <p className="text-gray-500 text-sm">
                 Your ticket for{' '}
                 <span className="text-emerald-400 font-semibold">{formData.event?.title ?? 'the event'}</span>{' '}
-                is ready.
+                is ready. Download or print it below.
               </p>
             </div>
             <TicketCard formData={formData} />
@@ -181,7 +202,7 @@ export default function App() {
             </div>
           </div>
         )}
-      </div>
+      </main>
 
       {/* Event Modal */}
       {modalEvent && (
