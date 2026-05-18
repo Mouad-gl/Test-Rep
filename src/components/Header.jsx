@@ -1,17 +1,6 @@
 import { useState } from 'react'
 import { categories, tagsByCategory } from '../data/events'
 
-function BrandLogo({ className = 'w-9 h-10' }) {
-  return (
-    <svg className={className} viewBox="0 0 88 98" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <polygon points="0,0 56,0 72,16 72,44 36,44 36,36 0,36" fill="#1AB88C"/>
-      <polygon points="0,36 36,36 36,44 0,44" fill="#0D9270"/>
-      <polygon points="0,44 36,44 36,52 0,52" fill="#C40D4A"/>
-      <polygon points="0,52 36,52 36,62 72,62 72,82 56,98 0,98" fill="#F0135A"/>
-    </svg>
-  )
-}
-
 function CatIcon({ category }) {
   const p = { className: 'w-4 h-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1.8 }
   if (category === 'All')
@@ -50,7 +39,7 @@ export default function Header({
           className="flex items-center gap-2.5 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-lg"
           aria-label="Go to home"
         >
-          <BrandLogo className="w-7 h-8" />
+          <img src="/Test-Rep/logo.svg" alt="Coding Conf logo" className="w-7 h-8" />
           <span className="text-white font-bold tracking-widest uppercase text-sm hidden sm:block">
             coding conf
           </span>
