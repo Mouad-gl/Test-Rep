@@ -16,7 +16,7 @@ function generateTicketNumber() {
 function checkRateLimit() {
   const key = 'cc_submissions'
   const now = Date.now()
-  const window = 60 * 60 * 1000 // 1 hour
+  const window = 60 * 60 * 1000
   const stored = JSON.parse(localStorage.getItem(key) || '[]')
   const recent = stored.filter((t) => now - t < window)
   if (recent.length >= 3) return false
@@ -99,62 +99,46 @@ export default function TicketForm({ onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-
-    // Honeypot — silent drop if bot filled the hidden field
     if (honeypot) return
-
-    // Rate limiting
     if (!checkRateLimit()) {
       setErrors({ form: 'Too many submissions. Please wait an hour before trying again.' })
       return
     }
-
     const errs = validate()
-
-    // Math CAPTCHA
     if (captchaInput.trim() === '' || parseInt(captchaInput, 10) !== captcha.answer) {
       errs.captcha = 'Incorrect answer — please try again.'
       setCaptcha(generateCaptcha())
       setCaptchaInput('')
     }
-
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
       const firstKey = Object.keys(errs)[0]
       document.getElementById(firstKey)?.focus()
       return
     }
-
     const ticketNumber = generateTicketNumber()
     const github = fields.github.startsWith('@') ? fields.github : `@${fields.github}`
     onSubmit({ ...fields, github, avatarPreview, ticketNumber })
   }
 
   const inputClass = (field) => `
-    w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-[#7a6e8a] text-sm
-    transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent
-    ${errors[field] ? 'border-red-400 bg-red-500/5' : 'border-white/10 hover:border-white/20'}
+    w-full bg-white/[0.04] border rounded-xl px-4 py-3 text-white placeholder-gray-600 text-sm
+    transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent
+    ${errors[field] ? 'border-red-400 bg-red-500/5' : 'border-white/[0.08] hover:border-white/20'}
   `
 
   return (
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl"
+      className="bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-2xl"
       aria-label="Conference ticket registration form"
     >
-      {/* Honeypot — hidden from real users, bots fill it */}
+      {/* Honeypot */}
       <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
         <label htmlFor="website">Website</label>
-        <input
-          id="website"
-          name="website"
-          type="text"
-          tabIndex={-1}
-          autoComplete="off"
-          value={honeypot}
-          onChange={(e) => setHoneypot(e.target.value)}
-        />
+        <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off"
+          value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
       </div>
 
       {/* Global form error */}
@@ -175,7 +159,7 @@ export default function TicketForm({ onSubmit }) {
             tabIndex={0}
             aria-label="Upload avatar image. Click or drag and drop a JPG, PNG, or GIF under 500KB."
             className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200
-              ${dragOver ? 'border-orange-400 bg-orange-500/10' : 'border-white/20 bg-white/5 hover:border-orange-400/60 hover:bg-white/10'}
+              ${dragOver ? 'border-emerald-400 bg-emerald-500/10' : 'border-white/[0.12] bg-white/[0.03] hover:border-emerald-400/50 hover:bg-white/[0.06]'}
               ${errors.avatar ? 'border-red-400' : ''}`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -187,25 +171,25 @@ export default function TicketForm({ onSubmit }) {
               className="sr-only" onChange={handleFileChange}
               aria-describedby={errors.avatar ? 'avatar-error' : 'avatar-hint'} />
             <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-[#b8a9c9]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <div className="w-12 h-12 bg-white/[0.06] rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
               </div>
-              <p className="text-[#b8a9c9] text-sm">
-                <span className="text-orange-400 font-semibold">Click to upload</span> or drag and drop
+              <p className="text-gray-400 text-sm">
+                <span className="text-emerald-400 font-semibold">Click to upload</span> or drag and drop
               </p>
-              <p className="text-[#7a6e8a] text-xs">JPG, PNG, GIF — max 500KB</p>
+              <p className="text-gray-600 text-xs">JPG, PNG, GIF — max 500KB</p>
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-4">
-            <img src={avatarPreview} alt="Avatar preview" className="w-16 h-16 rounded-xl object-cover border-2 border-orange-400/40" />
+          <div className="flex items-center gap-4 bg-white/[0.04] border border-white/[0.08] rounded-xl p-4">
+            <img src={avatarPreview} alt="Avatar preview" className="w-16 h-16 rounded-xl object-cover border-2 border-emerald-400/30 shrink-0" />
             <div className="flex flex-col gap-2">
               <p className="text-white text-sm font-medium">Avatar uploaded!</p>
               <div className="flex gap-3">
                 <button type="button" onClick={handleRemoveAvatar} className="text-xs text-red-400 hover:text-red-300 underline underline-offset-2 transition-colors">Remove image</button>
-                <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs text-orange-400 hover:text-orange-300 underline underline-offset-2 transition-colors">Change image</button>
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors">Change image</button>
               </div>
             </div>
             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/gif" className="sr-only" onChange={handleFileChange} aria-label="Replace avatar image" />
@@ -213,7 +197,7 @@ export default function TicketForm({ onSubmit }) {
         )}
         {errors.avatar
           ? <ErrorMsg id="avatar-error" msg={errors.avatar} />
-          : <p id="avatar-hint" className="mt-1.5 text-[#7a6e8a] text-xs">Upload your photo (JPG, PNG, GIF — max 500KB).</p>}
+          : <p id="avatar-hint" className="mt-1.5 text-gray-600 text-xs">Upload your photo (JPG, PNG, GIF — max 500KB).</p>}
       </div>
 
       {/* Full Name */}
@@ -235,14 +219,14 @@ export default function TicketForm({ onSubmit }) {
           aria-invalid={!!errors.email} placeholder="example@email.com" className={inputClass('email')} />
         {errors.email
           ? <ErrorMsg id="email-error" msg={errors.email} />
-          : <p id="email-hint" className="mt-1.5 text-[#7a6e8a] text-xs">We'll send your ticket confirmation to this address.</p>}
+          : <p id="email-hint" className="mt-1.5 text-gray-600 text-xs">We'll send updates about the event to this address.</p>}
       </div>
 
       {/* GitHub Username */}
       <div className="mb-6">
         <label htmlFor="github" className="block text-white text-sm font-semibold mb-1.5">GitHub Username</label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a6e8a] text-sm select-none" aria-hidden="true">@</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-sm select-none" aria-hidden="true">@</span>
           <input id="github" name="github" type="text" autoComplete="username"
             value={fields.github} onChange={handleChange}
             aria-describedby={errors.github ? 'github-error' : 'github-hint'}
@@ -251,14 +235,14 @@ export default function TicketForm({ onSubmit }) {
         </div>
         {errors.github
           ? <ErrorMsg id="github-error" msg={errors.github} />
-          : <p id="github-hint" className="mt-1.5 text-[#7a6e8a] text-xs">Your GitHub handle — no @ needed.</p>}
+          : <p id="github-hint" className="mt-1.5 text-gray-600 text-xs">Your GitHub handle — no @ needed.</p>}
       </div>
 
       {/* Math CAPTCHA */}
-      <div className="mb-7 p-4 rounded-xl bg-white/5 border border-white/10">
+      <div className="mb-7 p-4 rounded-xl bg-white/[0.03] border border-white/[0.08]">
         <p className="text-white text-sm font-semibold mb-3">
           Quick check — what is{' '}
-          <span className="text-orange-400 font-bold">{captcha.a} + {captcha.b}</span>?
+          <span className="text-emerald-400 font-bold">{captcha.a} + {captcha.b}</span>?
         </p>
         <input
           id="captcha"
@@ -270,19 +254,19 @@ export default function TicketForm({ onSubmit }) {
           aria-describedby={errors.captcha ? 'captcha-error' : undefined}
           aria-invalid={!!errors.captcha}
           placeholder="Enter your answer"
-          className={`w-full bg-white/5 border rounded-xl px-4 py-2.5 text-white placeholder-[#7a6e8a] text-sm
-            focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all
-            ${errors.captcha ? 'border-red-400 bg-red-500/5' : 'border-white/10'}`}
+          className={`w-full bg-white/[0.04] border rounded-xl px-4 py-2.5 text-white placeholder-gray-600 text-sm
+            focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all
+            ${errors.captcha ? 'border-red-400 bg-red-500/5' : 'border-white/[0.08]'}`}
         />
         {errors.captcha && <ErrorMsg id="captcha-error" msg={errors.captcha} />}
       </div>
 
       <button
         type="submit"
-        className="w-full bg-orange-500 hover:bg-orange-400 active:bg-orange-600
-          text-white font-bold text-base rounded-xl py-3.5 px-6
-          transition-all duration-200 shadow-lg shadow-orange-500/20
-          focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-[#1a1025]"
+        className="w-full bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600
+          text-white font-bold text-sm rounded-xl py-3.5 px-6
+          transition-all duration-200 shadow-lg shadow-emerald-500/20
+          focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#0d0d0d]"
       >
         Generate My Ticket
       </button>
