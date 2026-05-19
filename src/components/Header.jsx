@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { categories } from '../data/events'
 
 function CatIcon({ category }) {
@@ -16,6 +16,91 @@ function CatIcon({ category }) {
   return <svg {...p}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
 }
 
+function FavoritesMenu({ favorites, onEventClick, onRemove }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="relative p-2 rounded-lg text-gray-500 hover:text-rose-400 hover:bg-white/[0.05] transition-colors"
+        aria-label="Favorites"
+      >
+        <svg className="w-5 h-5" fill={favorites.length > 0 ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}
+          style={{ color: favorites.length > 0 ? '#f43f5e' : undefined }}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+        </svg>
+        {favorites.length > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
+            {favorites.length}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-80 bg-[#1a1a1a] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50">
+          <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
+            <span className="text-white text-sm font-semibold">Saved Events</span>
+            <span className="text-gray-600 text-xs">{favorites.length} saved</span>
+          </div>
+
+          {favorites.length === 0 ? (
+            <div className="py-10 flex flex-col items-center gap-2 text-gray-600">
+              <svg className="w-8 h-8 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+              </svg>
+              <p className="text-xs">No saved events yet</p>
+            </div>
+          ) : (
+            <ul className="max-h-72 overflow-y-auto divide-y divide-white/[0.04]">
+              {favorites.map((ev) => (
+                <li key={ev.id} className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors">
+                  <button
+                    className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                    onClick={() => { onEventClick(ev); setOpen(false) }}
+                  >
+                    <div
+                      className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center border"
+                      style={{ background: `${ev.color.accent}15`, borderColor: `${ev.color.accent}30` }}
+                    >
+                      {ev.image_url
+                        ? <img src={ev.image_url} alt="" className="w-full h-full object-cover rounded-lg" />
+                        : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={ev.color.accent} strokeWidth={1.8}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
+                          </svg>
+                      }
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-white text-sm font-semibold truncate">{ev.title}</p>
+                      <p className="text-gray-600 text-xs truncate">{ev.date}</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => onRemove(ev)}
+                    className="shrink-0 p-1 text-gray-600 hover:text-rose-400 transition-colors"
+                    aria-label="Remove from favorites"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Header({
   view,
   onNavigateHome,
@@ -26,6 +111,9 @@ export default function Header({
   activeTag,
   onTagChange,
   tagsByCategory = {},
+  favorites = [],
+  onFavoriteClick,
+  onFavoriteRemove,
 }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const tags = tagsByCategory[activeCategory] ?? []
@@ -52,6 +140,13 @@ export default function Header({
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
             </svg>
           </button>
+
+          <FavoritesMenu
+            favorites={favorites}
+            onEventClick={onFavoriteClick}
+            onRemove={onFavoriteRemove}
+          />
+
           <button
             onClick={() => setMobileOpen((o) => !o)}
             className="md:hidden p-2 rounded-lg text-gray-500 hover:text-white hover:bg-white/[0.05] transition-colors"
