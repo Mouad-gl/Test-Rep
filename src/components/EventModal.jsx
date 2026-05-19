@@ -73,48 +73,39 @@ export default function EventModal({ event, onClose, onGetTicket }) {
 
         <div className="flex flex-col sm:flex-row overflow-y-auto">
 
-          {/* Left: Square banner */}
+          {/* Left: Banner */}
           <div
-            className="w-full sm:w-64 shrink-0 relative"
+            className="w-full sm:w-64 shrink-0 relative overflow-hidden"
             style={{
-              background: `linear-gradient(145deg, ${event.color.from} 0%, ${event.color.to} 100%)`,
+              background: event.image_url ? '#111' : `linear-gradient(145deg, ${event.color.from} 0%, ${event.color.to} 100%)`,
               minHeight: '240px',
             }}
           >
-            {/* SVG pattern */}
-            <svg className="absolute inset-0 w-full h-full opacity-[0.1]" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="mp" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M0 20 Q5 12 10 20 Q15 28 20 20 Q25 12 30 20 Q35 28 40 20" fill="none" stroke={event.color.accent} strokeWidth="1.2"/>
-                  <path d="M0 36 Q5 28 10 36 Q15 44 20 36 Q25 28 30 36 Q35 44 40 36" fill="none" stroke={event.color.accent} strokeWidth="1.2"/>
-                  <path d="M0 4 Q5 -4 10 4 Q15 12 20 4 Q25 -4 30 4 Q35 12 40 4" fill="none" stroke={event.color.accent} strokeWidth="1.2"/>
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#mp)" />
-            </svg>
+            {event.image_url ? (
+              <img src={event.image_url} alt={event.title} className="absolute inset-0 w-full h-full object-cover" />
+            ) : (
+              <>
+                <svg className="absolute inset-0 w-full h-full opacity-[0.1]" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <pattern id="mp" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                      <path d="M0 20 Q5 12 10 20 Q15 28 20 20 Q25 12 30 20 Q35 28 40 20" fill="none" stroke={event.color.accent} strokeWidth="1.2"/>
+                      <path d="M0 36 Q5 28 10 36 Q15 44 20 36 Q25 28 30 36 Q35 44 40 36" fill="none" stroke={event.color.accent} strokeWidth="1.2"/>
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#mp)" />
+                </svg>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full blur-3xl" style={{ background: event.color.glow }} />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-2xl flex items-center justify-center border" style={{ background: `${event.color.accent}12`, borderColor: `${event.color.accent}35` }}>
+                    <CategoryIcon category={event.category} color={event.color.accent} />
+                  </div>
+                </div>
+              </>
+            )}
 
-            {/* Glow */}
-            <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full blur-3xl"
-              style={{ background: event.color.glow }}
-            />
-
-            {/* Center icon */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div
-                className="w-20 h-20 rounded-2xl flex items-center justify-center border"
-                style={{ background: `${event.color.accent}12`, borderColor: `${event.color.accent}35` }}
-              >
-                <CategoryIcon category={event.category} color={event.color.accent} />
-              </div>
-            </div>
-
-            {/* Category badge bottom */}
+            {/* Category badge */}
             <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-              <span
-                className="text-xs font-semibold px-3 py-1 rounded-full"
-                style={{ background: `${event.color.accent}20`, color: event.color.accent }}
-              >
+              <span className="text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm" style={{ background: `${event.color.accent}30`, color: event.color.accent }}>
                 {event.category}
               </span>
             </div>
@@ -164,7 +155,7 @@ export default function EventModal({ event, onClose, onGetTicket }) {
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-7">
-              {event.tags.map((tag) => (
+              {(Array.isArray(event.tags) ? event.tags : []).map((tag) => (
                 <span
                   key={tag}
                   className="text-xs px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/[0.07] text-gray-500"

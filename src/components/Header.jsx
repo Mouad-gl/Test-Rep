@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { categories, tagsByCategory } from '../data/events'
+import { categories } from '../data/events'
 
 function CatIcon({ category }) {
   const p = { className: 'w-4 h-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1.8 }
@@ -25,6 +25,7 @@ export default function Header({
   onCategoryChange,
   activeTag,
   onTagChange,
+  tagsByCategory = {},
 }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const tags = tagsByCategory[activeCategory] ?? []
@@ -75,6 +76,7 @@ export default function Header({
           className="max-w-7xl mx-auto px-4 sm:px-6 h-11 flex items-center gap-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
+          {/* Category tabs — scrollable on narrow screens */}
           <div
             className="flex items-center gap-0.5 flex-1 min-w-0 overflow-x-auto"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -95,8 +97,10 @@ export default function Header({
             ))}
           </div>
 
+          {/* Vertical divider */}
           <div className="hidden sm:block w-px h-5 bg-white/[0.08] shrink-0 mx-2" />
 
+          {/* Search — desktop only, mobile is in drawer */}
           <div className="hidden sm:block shrink-0">
             <div className="relative">
               <svg
@@ -117,6 +121,7 @@ export default function Header({
           </div>
         </div>
 
+        {/* ── Topic tag bar (home only, when tags exist) ── */}
         {view === 'home' && tags.length > 0 && (
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 pb-2 flex items-center gap-1.5 overflow-x-auto"
@@ -139,6 +144,7 @@ export default function Header({
         )}
       </div>
 
+      {/* ── Mobile drawer ── */}
       {mobileOpen && (
         <div className="md:hidden border-t border-white/[0.07] px-4 py-3 flex flex-col gap-2">
           <div className="relative">
