@@ -84,20 +84,20 @@ export default function EventCard({ event, onClick }) {
       </div>
 
       {/* ── Title ── */}
-      <h3 className="text-white font-bold text-[17px] leading-snug mb-3 line-clamp-2 px-0.5">
+      <h3 className="text-white font-bold text-[20px] leading-snug mb-3 line-clamp-2 px-0.5">
         {event.title}
       </h3>
 
       {/* ── Meta ── */}
       <div className="space-y-1.5 px-0.5 mb-4">
-        <div className="flex items-center gap-2 text-gray-400 text-sm">
+        <div className="flex items-center gap-2 text-gray-400 text-base">
           <svg className="w-4 h-4 shrink-0 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
           </svg>
           <span className="truncate">{event.location}</span>
         </div>
-        <div className="flex items-center gap-2 text-gray-400 text-sm">
+        <div className="flex items-center gap-2 text-gray-400 text-base">
           <svg className="w-4 h-4 shrink-0 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
           </svg>
@@ -106,7 +106,7 @@ export default function EventCard({ event, onClick }) {
       </div>
 
       {/* ── Price button ── */}
-      <div className="w-full py-3 rounded-xl bg-[#1a1a1a] border border-white/[0.07] text-white font-bold text-base text-center transition-all duration-200 group-hover:bg-[#222] group-hover:border-white/15">
+      <div className="w-full py-3 rounded-xl bg-[#1a1a1a] border border-white/[0.07] text-white font-bold text-[18px] text-center transition-all duration-200 group-hover:bg-[#222] group-hover:border-white/15">
         {event.price}
       </div>
     </button>

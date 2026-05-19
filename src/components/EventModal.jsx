@@ -125,33 +125,33 @@ export default function EventModal({ event, onClose, onGetTicket }) {
               Back to events
             </button>
 
-            <h2 className="text-white text-2xl font-extrabold leading-tight mb-5">{event.title}</h2>
+            <h2 className="text-white text-[28px] font-extrabold leading-tight mb-5">{event.title}</h2>
 
             {/* Meta */}
             <div className="space-y-2.5 mb-5">
-              <div className="flex items-start gap-3 text-gray-400 text-sm">
+              <div className="flex items-start gap-3 text-gray-400 text-base">
                 <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                 </svg>
                 <span>{event.date} &nbsp;·&nbsp; {event.time}</span>
               </div>
-              <div className="flex items-start gap-3 text-gray-400 text-sm">
+              <div className="flex items-start gap-3 text-gray-400 text-base">
                 <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                 </svg>
                 <span>{event.location}</span>
               </div>
-              <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center gap-3 text-base">
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
                 </svg>
-                <span className="font-bold" style={{ color: event.color.accent }}>{event.price}</span>
+                <span className="text-[18px] font-bold" style={{ color: event.color.accent }}>{event.price}</span>
               </div>
             </div>
 
             {/* Description */}
-            <p className="text-gray-400 text-sm leading-relaxed mb-5">{event.description}</p>
+            <p className="text-gray-400 text-base leading-relaxed mb-5">{event.description}</p>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-7">
@@ -168,7 +168,7 @@ export default function EventModal({ event, onClose, onGetTicket }) {
             {/* CTA */}
             <button
               onClick={onGetTicket}
-              className="mt-auto w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+              className="mt-auto w-full py-3.5 px-6 rounded-xl font-bold text-base text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
               style={{
                 background: event.color.button,
                 boxShadow: `0 8px 24px ${event.color.glow}`,

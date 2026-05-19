@@ -117,7 +117,7 @@ export default function App() {
 
             <div className="flex items-end justify-between mb-6 gap-4">
               <div>
-                <h1 className="text-white text-2xl sm:text-3xl font-extrabold leading-tight">
+                <h1 className="text-white text-[28px] sm:text-[36px] font-extrabold leading-tight">
                   {searchQuery
                     ? <>Results for <span className="text-emerald-400">"{searchQuery}"</span></>
                     : activeCategory === 'All'
@@ -211,7 +211,7 @@ export default function App() {
             )}
 
             <div className="mb-6">
-              <h1 className="text-white text-2xl font-extrabold leading-tight">Register for your ticket</h1>
+              <h1 className="text-white text-[28px] font-extrabold leading-tight">Register for your ticket</h1>
               <p className="text-gray-500 text-sm mt-1">Fill in your details to generate a personalized ticket.</p>
             </div>
 
