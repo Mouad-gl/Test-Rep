@@ -20,6 +20,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [events, setEvents] = useState(fallbackEvents)
   const [loading, setLoading] = useState(true)
+  const [favorites, setFavorites] = useState([])
 
   useEffect(() => {
     supabase
@@ -95,6 +96,14 @@ export default function App() {
     setActiveTag(null)
   }
 
+  const handleToggleFavorite = (event) => {
+    setFavorites((prev) =>
+      prev.some((f) => f.id === event.id)
+        ? prev.filter((f) => f.id !== event.id)
+        : [...prev, event]
+    )
+  }
+
   return (
     <div className="relative min-h-screen bg-[#0d0d0d] font-sans">
       <BackgroundPattern />
@@ -109,6 +118,9 @@ export default function App() {
         activeTag={activeTag}
         onTagChange={setActiveTag}
         tagsByCategory={tagsByCategory}
+        favorites={favorites}
+        onFavoriteClick={(ev) => setModalEvent(ev)}
+        onFavoriteRemove={handleToggleFavorite}
       />
 
       <main className="relative z-10">
@@ -259,6 +271,8 @@ export default function App() {
           event={modalEvent}
           onClose={() => setModalEvent(null)}
           onGetTicket={() => handleGetTicket(modalEvent)}
+          isFavorited={favorites.some((f) => f.id === modalEvent.id)}
+          onToggleFavorite={() => handleToggleFavorite(modalEvent)}
         />
       )}
     </div>

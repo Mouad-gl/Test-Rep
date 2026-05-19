@@ -34,7 +34,7 @@ function CategoryIcon({ category, color }) {
   )
 }
 
-export default function EventModal({ event, onClose, onGetTicket }) {
+export default function EventModal({ event, onClose, onGetTicket, isFavorited, onToggleFavorite }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', onKey)
@@ -170,16 +170,44 @@ export default function EventModal({ event, onClose, onGetTicket }) {
             </div>
 
             {/* CTA */}
-            <button
-              onClick={onGetTicket}
-              className="mt-auto w-full py-3.5 px-6 rounded-xl font-bold text-base text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
-              style={{
-                background: event.color.button,
-                boxShadow: `0 8px 24px ${event.color.glow}`,
-              }}
-            >
-              Get Your Ticket →
-            </button>
+            <div className="mt-auto flex items-center gap-2">
+              <button
+                onClick={onGetTicket}
+                className="flex-1 py-3.5 px-6 rounded-xl font-bold text-base text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+                style={{
+                  background: event.color.button,
+                  boxShadow: `0 8px 24px ${event.color.glow}`,
+                }}
+              >
+                Get Your Ticket →
+              </button>
+              <button
+                onClick={onGetTicket}
+                className="py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-white/[0.08] hover:bg-white/[0.13] border border-white/[0.10] transition-all duration-200 active:scale-[0.98] whitespace-nowrap"
+              >
+                Add to Cart
+              </button>
+              <button
+                onClick={onToggleFavorite}
+                className="py-3.5 px-3.5 rounded-xl border transition-all duration-200 active:scale-[0.95] flex items-center justify-center"
+                style={{
+                  background: isFavorited ? 'rgba(244,63,94,0.15)' : 'rgba(255,255,255,0.05)',
+                  borderColor: isFavorited ? 'rgba(244,63,94,0.4)' : 'rgba(255,255,255,0.10)',
+                }}
+                aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+              >
+                <svg
+                  className="w-5 h-5 transition-colors"
+                  fill={isFavorited ? 'currentColor' : 'none'}
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  style={{ color: isFavorited ? '#f43f5e' : '#9ca3af' }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
