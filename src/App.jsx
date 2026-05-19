@@ -21,7 +21,9 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [events, setEvents] = useState(fallbackEvents)
   const [loading, setLoading] = useState(true)
-  const [favorites, setFavorites] = useState([])
+  const [favorites, setFavorites] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('favorites')) ?? [] } catch { return [] }
+  })
 
   useEffect(() => {
     supabase
@@ -98,11 +100,13 @@ export default function App() {
   }
 
   const handleToggleFavorite = (event) => {
-    setFavorites((prev) =>
-      prev.some((f) => f.id === event.id)
+    setFavorites((prev) => {
+      const next = prev.some((f) => f.id === event.id)
         ? prev.filter((f) => f.id !== event.id)
         : [...prev, event]
-    )
+      localStorage.setItem('favorites', JSON.stringify(next))
+      return next
+    })
   }
 
   return (
