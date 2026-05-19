@@ -5,6 +5,7 @@ import TicketCard from './components/TicketCard'
 import EventCard from './components/EventCard'
 import EventModal from './components/EventModal'
 import BackgroundPattern from './components/BackgroundPattern'
+import Footer from './components/Footer'
 import FeaturedSlider from './components/FeaturedSlider'
 import { supabase } from './lib/supabase'
 import { fallbackEvents, colorForCategory, categories } from './data/events'
@@ -265,6 +266,8 @@ export default function App() {
           </div>
         )}
       </main>
+
+      <Footer />
 
       {modalEvent && (
         <EventModal
