@@ -5,6 +5,7 @@ import TicketCard from './components/TicketCard'
 import EventCard from './components/EventCard'
 import EventModal from './components/EventModal'
 import BackgroundPattern from './components/BackgroundPattern'
+import FeaturedSlider from './components/FeaturedSlider'
 import { supabase } from './lib/supabase'
 import { fallbackEvents, colorForCategory, categories } from './data/events'
 import './App.css'
@@ -115,9 +116,13 @@ export default function App() {
         {view === 'home' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
+            {!searchQuery && activeCategory === 'All' && !activeTag && (
+              <FeaturedSlider events={events} onEventClick={setModalEvent} />
+            )}
+
             <div className="flex items-end justify-between mb-6 gap-4">
               <div>
-                <h1 className="text-white text-2xl sm:text-3xl font-extrabold leading-tight">
+                <h1 className="text-white text-[28px] sm:text-[36px] font-extrabold leading-tight">
                   {searchQuery
                     ? <>Results for <span className="text-emerald-400">"{searchQuery}"</span></>
                     : activeCategory === 'All'
@@ -211,7 +216,7 @@ export default function App() {
             )}
 
             <div className="mb-6">
-              <h1 className="text-white text-2xl font-extrabold leading-tight">Register for your ticket</h1>
+              <h1 className="text-white text-[28px] font-extrabold leading-tight">Register for your ticket</h1>
               <p className="text-gray-500 text-sm mt-1">Fill in your details to generate a personalized ticket.</p>
             </div>
 
