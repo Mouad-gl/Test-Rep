@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { categories, tagsByCategory } from '../data/events'
+import { categories } from '../data/events'
 
 function CatIcon({ category }) {
   const p = { className: 'w-4 h-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1.8 }
@@ -25,6 +25,7 @@ export default function Header({
   onCategoryChange,
   activeTag,
   onTagChange,
+  tagsByCategory = {},
 }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const tags = tagsByCategory[activeCategory] ?? []

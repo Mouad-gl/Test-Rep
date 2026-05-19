@@ -12,19 +12,22 @@ function CategoryIcon({ category, color }) {
 }
 
 export default function EventCard({ event, onClick }) {
+  const color = event.color
+  const hasImage = !!event.image_url
+
   return (
     <button
       onClick={() => onClick(event)}
       className="group w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-2xl"
       aria-label={`View details for ${event.title}`}
     >
-      {/* ── Organizer / category row ── */}
+      {/* ── Category row ── */}
       <div className="flex items-center gap-2.5 mb-3 px-0.5">
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border"
-          style={{ background: `${event.color.accent}18`, borderColor: `${event.color.accent}40` }}
+          style={{ background: `${color.accent}18`, borderColor: `${color.accent}40` }}
         >
-          <CategoryIcon category={event.category} color={event.color.accent} />
+          <CategoryIcon category={event.category} color={color.accent} />
         </div>
         <span className="text-white text-sm font-bold tracking-wide uppercase truncate">
           {event.category}
@@ -36,43 +39,43 @@ export default function EventCard({ event, onClick }) {
         className="relative w-full overflow-hidden rounded-xl mb-4"
         style={{
           aspectRatio: '3 / 2',
-          background: `linear-gradient(145deg, ${event.color.from} 0%, ${event.color.to} 100%)`,
+          background: hasImage
+            ? '#111'
+            : `linear-gradient(145deg, ${color.from} 0%, ${color.to} 100%)`,
         }}
       >
-        {/* Squiggly pattern */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.1]" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id={`pc-${event.id}`} x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M0 20 Q5 12 10 20 Q15 28 20 20 Q25 12 30 20 Q35 28 40 20" fill="none" stroke={event.color.accent} strokeWidth="1.2"/>
-              <path d="M0 36 Q5 28 10 36 Q15 44 20 36 Q25 28 30 36 Q35 44 40 36" fill="none" stroke={event.color.accent} strokeWidth="1.2"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill={`url(#pc-${event.id})`} />
-        </svg>
-
-        {/* Glow blob */}
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          aria-hidden="true"
-        >
-          <div
-            className="w-32 h-32 rounded-full blur-3xl transition-transform duration-500 group-hover:scale-125"
-            style={{ background: event.color.glow }}
+        {hasImage ? (
+          <img
+            src={event.image_url}
+            alt={event.title}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-        </div>
+        ) : (
+          <>
+            <svg className="absolute inset-0 w-full h-full opacity-[0.1]" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id={`pc-${event.id}`} x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M0 20 Q5 12 10 20 Q15 28 20 20 Q25 12 30 20 Q35 28 40 20" fill="none" stroke={color.accent} strokeWidth="1.2"/>
+                  <path d="M0 36 Q5 28 10 36 Q15 44 20 36 Q25 28 30 36 Q35 44 40 36" fill="none" stroke={color.accent} strokeWidth="1.2"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill={`url(#pc-${event.id})`} />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+              <div className="w-32 h-32 rounded-full blur-3xl transition-transform duration-500 group-hover:scale-125" style={{ background: color.glow }} />
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center border transition-transform duration-300 group-hover:scale-110"
+                style={{ background: `${color.accent}15`, borderColor: `${color.accent}35` }}
+              >
+                <CategoryIcon category={event.category} color={color.accent} />
+              </div>
+            </div>
+          </>
+        )}
 
-        {/* Center icon */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center border transition-transform duration-300 group-hover:scale-110"
-            style={{ background: `${event.color.accent}15`, borderColor: `${event.color.accent}35` }}
-          >
-            <CategoryIcon category={event.category} color={event.color.accent} />
-          </div>
-        </div>
-
-        {/* "ANNULÉ"-style status badge — future use */}
-        {/* Price badge top-right */}
+        {/* Price badge */}
         <div className="absolute top-3 right-3">
           <span className="bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-full">
             {event.price}
@@ -103,9 +106,7 @@ export default function EventCard({ event, onClick }) {
       </div>
 
       {/* ── Price button ── */}
-      <div
-        className="w-full py-3 rounded-xl bg-[#1a1a1a] border border-white/[0.07] text-white font-bold text-base text-center transition-all duration-200 group-hover:bg-[#222] group-hover:border-white/15"
-      >
+      <div className="w-full py-3 rounded-xl bg-[#1a1a1a] border border-white/[0.07] text-white font-bold text-base text-center transition-all duration-200 group-hover:bg-[#222] group-hover:border-white/15">
         {event.price}
       </div>
     </button>
