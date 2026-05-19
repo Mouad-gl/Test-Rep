@@ -27,7 +27,13 @@ export default function App() {
       .order('created_at', { ascending: true })
       .then(({ data, error }) => {
         if (!error && data && data.length > 0) {
-          setEvents(data.map((e) => ({ ...e, color: colorForCategory(e.category) })))
+          setEvents(data.map((e) => ({
+            ...e,
+            color: colorForCategory(e.category),
+            date: e.date
+              ? new Date(e.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+              : '',
+          })))
         }
         setLoading(false)
       })
