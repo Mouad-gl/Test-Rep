@@ -104,7 +104,7 @@ export default function EventCard({ event, onClick }) {
           <div>
             <span>{event.date} · {event.time}</span>
             <div className="mt-0.5">
-              <span className="text-gray-500 text-base">starting from </span>
+              <span className="text-gray-500 text-xs">starting from </span>
               <span className="text-[20px] font-bold text-emerald-400">{event.price}</span>
             </div>
           </div>
