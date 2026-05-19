@@ -72,14 +72,14 @@ export default function EventModal({ event, onClose, onGetTicket }) {
           </svg>
         </button>
 
-        <div className="flex flex-col sm:flex-row overflow-y-auto">
+        <div className="flex flex-col overflow-y-auto">
 
-          {/* Left: Banner */}
+          {/* Top: Banner */}
           <div
-            className="w-full sm:w-64 shrink-0 relative overflow-hidden"
+            className="w-full relative overflow-hidden shrink-0"
             style={{
               background: event.image_url ? '#111' : `linear-gradient(145deg, ${event.color.from} 0%, ${event.color.to} 100%)`,
-              minHeight: '240px',
+              height: '220px',
             }}
           >
             {event.image_url ? (
@@ -112,7 +112,7 @@ export default function EventModal({ event, onClose, onGetTicket }) {
             </div>
           </div>
 
-          {/* Right: Details */}
+          {/* Bottom: Details */}
           <div className="flex-1 p-6 sm:p-8 flex flex-col">
 
             {/* Back link */}
