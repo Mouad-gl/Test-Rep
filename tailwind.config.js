@@ -25,7 +25,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inconsolata', 'monospace'],
+        sans: ['Poppins', 'sans-serif'],
       },
       backgroundImage: {
         'squiggly': "url('/bg-squiggly-lines.svg')",
