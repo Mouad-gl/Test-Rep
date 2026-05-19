@@ -84,7 +84,7 @@ export default function EventCard({ event, onClick }) {
       </div>
 
       {/* ── Title ── */}
-      <h3 className="text-white font-bold text-[20px] leading-snug mb-3 line-clamp-2 px-0.5">
+      <h3 className="text-white font-bold text-[20px] leading-snug mb-3 line-clamp-1 px-0.5">
         {event.title}
       </h3>
 
