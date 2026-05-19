@@ -30,36 +30,28 @@ export default function CountdownTimer({ dateRaw, time, accent }) {
   if (!target || !countdown) return null
 
   const pad = (n) => String(n).padStart(2, '0')
-  const color = accent ?? '#6ee7b7'
 
   const units = [
-    { label: 'DAYS', value: countdown.d },
-    { label: 'HRS',  value: countdown.h },
-    { label: 'MIN',  value: countdown.m },
-    { label: 'SEC',  value: countdown.s },
+    { value: countdown.d },
+    { value: countdown.h },
+    { value: countdown.m },
+    { value: countdown.s },
   ]
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <p className="text-gray-600 text-[10px] uppercase tracking-widest mb-1">Event starts in</p>
-      <div className="flex items-center gap-1">
-        {units.map(({ label, value }, i) => (
-          <div key={label} className="flex items-center gap-1">
-            <div className="flex flex-col items-center">
-              <span
-                className="font-mono font-bold text-lg leading-none tabular-nums"
-                style={{ color }}
-              >
-                {pad(value)}
-              </span>
-              <span className="text-gray-600 text-[9px] tracking-widest mt-0.5">{label}</span>
-            </div>
-            {i < units.length - 1 && (
-              <span className="font-mono font-bold text-lg leading-none mb-3" style={{ color, opacity: 0.5 }}>:</span>
-            )}
+    <div className="flex items-center gap-1.5">
+      {units.map(({ value }, i) => (
+        <div key={i} className="flex items-center gap-1.5">
+          <div className="bg-[#222] rounded-lg px-3 py-2 min-w-[52px] flex items-center justify-center">
+            <span className="font-sans font-bold text-2xl leading-none tabular-nums text-gray-300">
+              {pad(value)}
+            </span>
           </div>
-        ))}
-      </div>
+          {i < units.length - 1 && (
+            <span className="font-sans font-bold text-xl text-gray-600 leading-none">:</span>
+          )}
+        </div>
+      ))}
     </div>
   )
 }
