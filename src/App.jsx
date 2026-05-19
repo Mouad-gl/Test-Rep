@@ -5,6 +5,7 @@ import TicketCard from './components/TicketCard'
 import EventCard from './components/EventCard'
 import EventModal from './components/EventModal'
 import BackgroundPattern from './components/BackgroundPattern'
+import FeaturedSlider from './components/FeaturedSlider'
 import { supabase } from './lib/supabase'
 import { fallbackEvents, colorForCategory, categories } from './data/events'
 import './App.css'
@@ -114,6 +115,10 @@ export default function App() {
         {/* ── HOME ── */}
         {view === 'home' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+            {!searchQuery && activeCategory === 'All' && !activeTag && (
+              <FeaturedSlider events={events} onEventClick={setModalEvent} />
+            )}
 
             <div className="flex items-end justify-between mb-6 gap-4">
               <div>
