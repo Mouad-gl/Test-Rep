@@ -126,11 +126,14 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
               Back to events
             </button>
 
-            <h2 className="text-white text-[28px] font-extrabold leading-tight mb-5">{event.title}</h2>
+            {/* Title + countdown on same row */}
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <h2 className="text-white text-[28px] font-extrabold leading-tight">{event.title}</h2>
+              <CountdownTimer dateRaw={event.date_raw} time={event.time} accent={event.color.accent} />
+            </div>
 
             {/* Meta */}
-            <div className="flex items-start justify-between gap-4 mb-5">
-            <div className="space-y-2.5 flex-1">
+            <div className="space-y-2.5 mb-5">
               <div className="flex items-start gap-3 text-gray-400 text-base">
                 <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -150,8 +153,6 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
                 </svg>
                 <span className="text-[18px] font-bold" style={{ color: event.color.accent }}>{event.price}</span>
               </div>
-            </div>
-              <CountdownTimer dateRaw={event.date_raw} time={event.time} accent={event.color.accent} />
             </div>
 
             {/* Description */}
