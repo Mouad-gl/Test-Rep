@@ -30,25 +30,26 @@ export default function CountdownTimer({ dateRaw, time, accent }) {
   if (!target || !countdown) return null
 
   const pad = (n) => String(n).padStart(2, '0')
+  const color = accent ?? '#6ee7b7'
 
   const units = [
-    { value: countdown.d },
-    { value: countdown.h },
-    { value: countdown.m },
-    { value: countdown.s },
+    { label: 'DAYS', value: countdown.d },
+    { label: 'HRS',  value: countdown.h },
+    { label: 'MIN',  value: countdown.m },
+    { label: 'SEC',  value: countdown.s },
   ]
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1">
       {units.map(({ value }, i) => (
-        <div key={i} className="flex items-center gap-1.5">
-          <div className="bg-[#222] rounded-lg px-3 py-2 min-w-[52px] flex items-center justify-center">
-            <span className="font-sans font-bold text-2xl leading-none tabular-nums text-gray-300">
+        <div key={i} className="flex items-center gap-1">
+          <div className="bg-[#222] rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 min-w-[36px] sm:min-w-[52px] flex items-center justify-center">
+            <span className="font-sans font-bold text-base sm:text-2xl leading-none tabular-nums text-gray-300">
               {pad(value)}
             </span>
           </div>
           {i < units.length - 1 && (
-            <span className="font-sans font-bold text-xl text-gray-600 leading-none">:</span>
+            <span className="font-sans font-bold text-base sm:text-xl text-gray-600 leading-none">:</span>
           )}
         </div>
       ))}
