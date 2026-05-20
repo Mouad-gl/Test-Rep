@@ -18,8 +18,7 @@ export default function FeaturedSlider({ events, onEventClick }) {
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-2xl mb-8"
-      style={{ aspectRatio: '21 / 7' }}
+      className="relative w-full overflow-hidden rounded-2xl mb-8 aspect-[4/3] sm:aspect-[21/7]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -48,22 +47,22 @@ export default function FeaturedSlider({ events, onEventClick }) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
             {/* Content */}
-            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10">
+            <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-10">
               <span
-                className="text-xs font-semibold px-3 py-1 rounded-full w-fit mb-3"
+                className="text-xs font-semibold px-2.5 py-1 rounded-full w-fit mb-2"
                 style={{ background: `${event.color.accent}30`, color: event.color.accent }}
               >
                 {event.category}
               </span>
-              <h2 className="text-white font-extrabold text-2xl sm:text-4xl leading-tight mb-2 max-w-lg drop-shadow-lg">
+              <h2 className="text-white font-extrabold text-xl sm:text-4xl leading-tight mb-1.5 drop-shadow-lg">
                 {event.title}
               </h2>
-              <p className="text-gray-300 text-sm sm:text-base mb-4">
+              <p className="text-gray-300 text-xs sm:text-base mb-3">
                 {event.date}{event.location ? ` · ${event.location.split(',')[0]}` : ''}
               </p>
               <button
                 onClick={() => onEventClick(event)}
-                className="px-6 py-2.5 rounded-xl font-bold text-sm text-white w-fit transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+                className="px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white w-fit transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
                 style={{ background: event.color.button, boxShadow: `0 6px 20px ${event.color.glow}` }}
               >
                 View Event →
