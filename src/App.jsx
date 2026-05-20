@@ -7,6 +7,7 @@ import EventModal from './components/EventModal'
 import BackgroundPattern from './components/BackgroundPattern'
 import Footer from './components/Footer'
 import FeaturedSlider from './components/FeaturedSlider'
+import AuthModal from './components/AuthModal'
 import { supabase } from './lib/supabase'
 import { fallbackEvents, colorForCategory, categories } from './data/events'
 import './App.css'
@@ -24,6 +25,18 @@ export default function App() {
   const [favorites, setFavorites] = useState(() => {
     try { return JSON.parse(localStorage.getItem('favorites')) ?? [] } catch { return [] }
   })
+  const [user, setUser] = useState(null)
+  const [showAuth, setShowAuth] = useState(false)
+  const [pendingEvent, setPendingEvent] = useState(null)
+
+  // Auth session listener
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     supabase
@@ -78,9 +91,24 @@ export default function App() {
   })
 
   const handleGetTicket = (event) => {
+    if (!user) {
+      setPendingEvent(event)
+      setModalEvent(null)
+      setShowAuth(true)
+      return
+    }
     setSelectedEvent(event)
     setModalEvent(null)
     setView('form')
+  }
+
+  const handleAuthSuccess = () => {
+    setShowAuth(false)
+    if (pendingEvent) {
+      setSelectedEvent(pendingEvent)
+      setPendingEvent(null)
+      setView('form')
+    }
   }
 
   const handleFormSubmit = (data) => {
@@ -126,6 +154,9 @@ export default function App() {
         favorites={favorites}
         onFavoriteClick={(ev) => setModalEvent(ev)}
         onFavoriteRemove={handleToggleFavorite}
+        user={user}
+        onSignIn={() => setShowAuth(true)}
+        onSignOut={() => supabase.auth.signOut()}
       />
 
       <main className="relative z-10">
@@ -238,7 +269,7 @@ export default function App() {
               <p className="text-gray-500 text-sm mt-1">Fill in your details to generate a personalized ticket.</p>
             </div>
 
-            <TicketForm onSubmit={handleFormSubmit} />
+            <TicketForm onSubmit={handleFormSubmit} defaultEmail={user?.email} />
           </div>
         )}
 
@@ -280,6 +311,13 @@ export default function App() {
           onGetTicket={() => handleGetTicket(modalEvent)}
           isFavorited={favorites.some((f) => f.id === modalEvent.id)}
           onToggleFavorite={() => handleToggleFavorite(modalEvent)}
+        />
+      )}
+
+      {showAuth && (
+        <AuthModal
+          onClose={() => { setShowAuth(false); setPendingEvent(null) }}
+          onSuccess={handleAuthSuccess}
         />
       )}
     </div>

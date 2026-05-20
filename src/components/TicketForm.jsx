@@ -35,8 +35,8 @@ function ErrorMsg({ id, msg }) {
   )
 }
 
-export default function TicketForm({ onSubmit }) {
-  const [fields, setFields] = useState({ fullName: '', email: '', github: '' })
+export default function TicketForm({ onSubmit, defaultEmail = '' }) {
+  const [fields, setFields] = useState({ fullName: '', email: defaultEmail, github: '' })
   const [avatar, setAvatar] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [errors, setErrors] = useState({})
@@ -215,11 +215,15 @@ export default function TicketForm({ onSubmit }) {
         <label htmlFor="email" className="block text-white text-sm font-semibold mb-1.5">Email Address</label>
         <input id="email" name="email" type="email" autoComplete="email"
           value={fields.email} onChange={handleChange}
+          readOnly={!!defaultEmail}
           aria-describedby={errors.email ? 'email-error' : 'email-hint'}
-          aria-invalid={!!errors.email} placeholder="example@email.com" className={inputClass('email')} />
+          aria-invalid={!!errors.email} placeholder="example@email.com"
+          className={`${inputClass('email')} ${defaultEmail ? 'opacity-60 cursor-not-allowed' : ''}`} />
         {errors.email
           ? <ErrorMsg id="email-error" msg={errors.email} />
-          : <p id="email-hint" className="mt-1.5 text-gray-600 text-xs">We'll send updates about the event to this address.</p>}
+          : <p id="email-hint" className="mt-1.5 text-gray-600 text-xs">
+              {defaultEmail ? 'Email pre-filled from your account.' : "We'll send updates about the event to this address."}
+            </p>}
       </div>
 
       {/* GitHub Username */}

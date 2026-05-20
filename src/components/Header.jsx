@@ -1,6 +1,47 @@
 import { useState, useRef, useEffect } from 'react'
 import { categories } from '../data/events'
 
+function UserMenu({ user, onSignOut }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  const initials = user.email?.[0]?.toUpperCase() ?? '?'
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 text-sm font-bold hover:bg-emerald-500/30 transition-colors"
+        aria-label="Account menu"
+      >
+        {initials}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-56 bg-[#1a1a1a] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50">
+          <div className="px-4 py-3 border-b border-white/[0.06]">
+            <p className="text-white text-xs font-semibold truncate">{user.email}</p>
+            <p className="text-gray-600 text-xs mt-0.5">Signed in</p>
+          </div>
+          <button
+            onClick={() => { onSignOut(); setOpen(false) }}
+            className="w-full text-left px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+            </svg>
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function CatIcon({ category }) {
   const p = { className: 'w-4 h-4', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1.8 }
   if (category === 'All')
@@ -114,6 +155,9 @@ export default function Header({
   favorites = [],
   onFavoriteClick,
   onFavoriteRemove,
+  user,
+  onSignIn,
+  onSignOut,
 }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const tags = tagsByCategory[activeCategory] ?? []
@@ -131,21 +175,23 @@ export default function Header({
           <img src="/Test-Rep/logo.svg" alt="Coding Conf" className="h-8 w-auto" />
         </button>
 
-        <div className="flex items-center gap-1">
-          <button
-            className="hidden sm:flex p-2 rounded-lg text-gray-500 hover:text-white hover:bg-white/[0.05] transition-colors"
-            aria-label="My tickets"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
-            </svg>
-          </button>
-
+        <div className="flex items-center gap-1.5">
           <FavoritesMenu
             favorites={favorites}
             onEventClick={onFavoriteClick}
             onRemove={onFavoriteRemove}
           />
+
+          {user ? (
+            <UserMenu user={user} onSignOut={onSignOut} />
+          ) : (
+            <button
+              onClick={onSignIn}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-400/20 text-emerald-400 text-sm font-semibold transition-all"
+            >
+              Sign In
+            </button>
+          )}
 
           <button
             onClick={() => setMobileOpen((o) => !o)}
@@ -261,9 +307,24 @@ export default function Header({
           >
             Home
           </button>
-          <button className="text-left px-3 py-2 rounded-lg text-sm text-gray-600 cursor-not-allowed" disabled>
-            About
-          </button>
+          {user ? (
+            <div className="flex items-center justify-between px-3 py-2">
+              <span className="text-gray-500 text-sm truncate">{user.email}</span>
+              <button
+                onClick={() => { onSignOut(); setMobileOpen(false) }}
+                className="text-xs text-gray-600 hover:text-red-400 transition-colors shrink-0 ml-2"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { onSignIn(); setMobileOpen(false) }}
+              className="text-left px-3 py-2 rounded-lg text-sm text-emerald-400 font-semibold hover:bg-white/[0.05] transition-colors"
+            >
+              Sign In / Sign Up
+            </button>
+          )}
         </div>
       )}
     </header>
