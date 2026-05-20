@@ -7,6 +7,7 @@ import EventModal from './components/EventModal'
 import BackgroundPattern from './components/BackgroundPattern'
 import Footer from './components/Footer'
 import FeaturedSlider from './components/FeaturedSlider'
+import AuthModal from './components/AuthModal'
 import { supabase } from './lib/supabase'
 import { fallbackEvents, colorForCategory, categories } from './data/events'
 import './App.css'
@@ -24,6 +25,22 @@ export default function App() {
   const [favorites, setFavorites] = useState(() => {
     try { return JSON.parse(localStorage.getItem('favorites')) ?? [] } catch { return [] }
   })
+  const [user, setUser] = useState(null)
+  const [authReady, setAuthReady] = useState(false)
+  const [showAuth, setShowAuth] = useState(false)
+  const [pendingEvent, setPendingEvent] = useState(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null)
+      setAuthReady(true)
+    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null)
+      setAuthReady(true)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     supabase
@@ -78,9 +95,24 @@ export default function App() {
   })
 
   const handleGetTicket = (event) => {
+    if (authReady && !user) {
+      setPendingEvent(event)
+      setModalEvent(null)
+      setShowAuth(true)
+      return
+    }
     setSelectedEvent(event)
     setModalEvent(null)
     setView('form')
+  }
+
+  const handleAuthSuccess = () => {
+    setShowAuth(false)
+    if (pendingEvent) {
+      setSelectedEvent(pendingEvent)
+      setPendingEvent(null)
+      setView('form')
+    }
   }
 
   const handleFormSubmit = (data) => {
@@ -126,11 +158,13 @@ export default function App() {
         favorites={favorites}
         onFavoriteClick={(ev) => setModalEvent(ev)}
         onFavoriteRemove={handleToggleFavorite}
+        user={user}
+        onSignIn={() => setShowAuth(true)}
+        onSignOut={() => supabase.auth.signOut()}
       />
 
       <main className="relative z-10">
 
-        {/* ── HOME ── */}
         {view === 'home' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
@@ -191,13 +225,9 @@ export default function App() {
           </div>
         )}
 
-        {/* ── FORM ── */}
         {view === 'form' && (
           <div className="max-w-lg mx-auto px-4 sm:px-6 py-8">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-400 text-sm mb-6 transition-colors"
-            >
+            <button onClick={handleBack} className="flex items-center gap-1.5 text-gray-600 hover:text-gray-400 text-sm mb-6 transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
@@ -205,29 +235,22 @@ export default function App() {
             </button>
 
             {selectedEvent && (
-              <div
-                className="flex items-center gap-3 p-3.5 rounded-xl border mb-6"
-                style={{ background: `${selectedEvent.color.from}cc`, borderColor: `${selectedEvent.color.accent}25` }}
-              >
-                <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border overflow-hidden"
-                  style={{ background: `${selectedEvent.color.accent}15`, borderColor: `${selectedEvent.color.accent}30` }}
-                >
+              <div className="flex items-center gap-3 p-3.5 rounded-xl border mb-6"
+                style={{ background: `${selectedEvent.color.from}cc`, borderColor: `${selectedEvent.color.accent}25` }}>
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border overflow-hidden"
+                  style={{ background: `${selectedEvent.color.accent}15`, borderColor: `${selectedEvent.color.accent}30` }}>
                   {selectedEvent.image_url
                     ? <img src={selectedEvent.image_url} alt="" className="w-full h-full object-cover" />
                     : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={selectedEvent.color.accent} strokeWidth={1.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
-                      </svg>
-                  }
+                      </svg>}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-white text-sm font-semibold truncate">{selectedEvent.title}</p>
                   <p className="text-gray-500 text-xs">{selectedEvent.date} · {selectedEvent.location?.split(',')[0]}</p>
                 </div>
-                <span
-                  className="text-xs font-bold px-2.5 py-1 rounded-full shrink-0"
-                  style={{ background: `${selectedEvent.color.accent}20`, color: selectedEvent.color.accent }}
-                >
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full shrink-0"
+                  style={{ background: `${selectedEvent.color.accent}20`, color: selectedEvent.color.accent }}>
                   {selectedEvent.price}
                 </span>
               </div>
@@ -238,11 +261,10 @@ export default function App() {
               <p className="text-gray-500 text-sm mt-1">Fill in your details to generate a personalized ticket.</p>
             </div>
 
-            <TicketForm onSubmit={handleFormSubmit} />
+            <TicketForm onSubmit={handleFormSubmit} defaultEmail={user?.email} />
           </div>
         )}
 
-        {/* ── TICKET ── */}
         {view === 'ticket' && formData && (
           <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
             <div className="text-center mb-10">
@@ -260,10 +282,7 @@ export default function App() {
             </div>
             <TicketCard formData={formData} />
             <div className="flex justify-center mt-8">
-              <button
-                onClick={handleBack}
-                className="text-sm text-gray-600 hover:text-gray-400 underline underline-offset-4 transition-colors"
-              >
+              <button onClick={handleBack} className="text-sm text-gray-600 hover:text-gray-400 underline underline-offset-4 transition-colors">
                 ← Browse more events
               </button>
             </div>
@@ -280,6 +299,13 @@ export default function App() {
           onGetTicket={() => handleGetTicket(modalEvent)}
           isFavorited={favorites.some((f) => f.id === modalEvent.id)}
           onToggleFavorite={() => handleToggleFavorite(modalEvent)}
+        />
+      )}
+
+      {showAuth && (
+        <AuthModal
+          onClose={() => { setShowAuth(false); setPendingEvent(null) }}
+          onSuccess={handleAuthSuccess}
         />
       )}
     </div>

@@ -1,7 +1,28 @@
 import { useState, useRef, useCallback } from 'react'
 
-const MAX_FILE_SIZE = 500 * 1024
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif']
+const MAX_FILE_SIZE = 8 * 1024 * 1024
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/heic', 'image/heif', 'image/webp']
+
+function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const MAX = 600
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * scale)
+        canvas.height = Math.round(img.height * scale)
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve(canvas.toDataURL('image/jpeg', 0.82))
+      }
+      img.onerror = () => resolve(e.target.result)
+      img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
 
 function generateCaptcha() {
   const a = Math.floor(Math.random() * 10) + 1
@@ -35,8 +56,8 @@ function ErrorMsg({ id, msg }) {
   )
 }
 
-export default function TicketForm({ onSubmit }) {
-  const [fields, setFields] = useState({ fullName: '', email: '', github: '' })
+export default function TicketForm({ onSubmit, defaultEmail = '' }) {
+  const [fields, setFields] = useState({ fullName: '', email: defaultEmail, github: '' })
   const [avatar, setAvatar] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [errors, setErrors] = useState({})
@@ -46,22 +67,23 @@ export default function TicketForm({ onSubmit }) {
   const [honeypot, setHoneypot] = useState('')
   const fileInputRef = useRef(null)
 
-  const processFile = (file) => {
+  const processFile = async (file) => {
     if (!file) return
     const errs = { ...errors }
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setErrors({ ...errs, avatar: 'Please upload a JPG, PNG, or GIF image.' })
+    const isImage = file.type.startsWith('image/') || file.name.match(/\.(heic|heif)$/i)
+    if (!isImage) {
+      setErrors({ ...errs, avatar: 'Please upload an image file.' })
       return
     }
     if (file.size > MAX_FILE_SIZE) {
-      setErrors({ ...errs, avatar: 'File too large. Please upload an image under 500KB.' })
+      setErrors({ ...errs, avatar: 'File too large. Please upload an image under 8 MB.' })
       return
     }
     delete errs.avatar
     setErrors(errs)
-    const reader = new FileReader()
-    reader.onload = (e) => { setAvatarPreview(e.target.result); setAvatar(file) }
-    reader.readAsDataURL(file)
+    const dataUrl = await compressImage(file)
+    setAvatarPreview(dataUrl)
+    setAvatar(file)
   }
 
   const handleFileChange = (e) => processFile(e.target.files[0])
@@ -70,7 +92,7 @@ export default function TicketForm({ onSubmit }) {
     e.preventDefault()
     setDragOver(false)
     processFile(e.dataTransfer.files[0])
-  }, [errors])
+  }, [])
 
   const handleDragOver = (e) => { e.preventDefault(); setDragOver(true) }
   const handleDragLeave = () => setDragOver(false)
@@ -128,46 +150,33 @@ export default function TicketForm({ onSubmit }) {
   `
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
+    <form onSubmit={handleSubmit} noValidate
       className="bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-2xl"
-      aria-label="Conference ticket registration form"
-    >
-      {/* Honeypot */}
+      aria-label="Conference ticket registration form">
       <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
         <label htmlFor="website">Website</label>
         <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off"
           value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
       </div>
 
-      {/* Global form error */}
       {errors.form && (
         <div role="alert" className="mb-5 p-3 rounded-xl bg-red-500/10 border border-red-400/30 text-red-400 text-sm text-center">
           {errors.form}
         </div>
       )}
 
-      {/* Avatar Upload */}
       <div className="mb-6">
-        <label className="block text-white text-sm font-semibold mb-2" htmlFor="avatar-upload">
-          Upload Avatar
-        </label>
+        <label className="block text-white text-sm font-semibold mb-2" htmlFor="avatar-upload">Upload Avatar</label>
         {!avatarPreview ? (
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label="Upload avatar image. Click or drag and drop a JPG, PNG, or GIF under 500KB."
+          <div role="button" tabIndex={0}
+            aria-label="Upload avatar image."
             className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200
               ${dragOver ? 'border-emerald-400 bg-emerald-500/10' : 'border-white/[0.12] bg-white/[0.03] hover:border-emerald-400/50 hover:bg-white/[0.06]'}
               ${errors.avatar ? 'border-red-400' : ''}`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
+            onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}
             onClick={() => fileInputRef.current?.click()}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click() } }}
-          >
-            <input ref={fileInputRef} id="avatar-upload" type="file" accept="image/jpeg,image/png,image/gif"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click() } }}>
+            <input ref={fileInputRef} id="avatar-upload" type="file" accept="image/*"
               className="sr-only" onChange={handleFileChange}
               aria-describedby={errors.avatar ? 'avatar-error' : 'avatar-hint'} />
             <div className="flex flex-col items-center gap-2">
@@ -176,10 +185,8 @@ export default function TicketForm({ onSubmit }) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
               </div>
-              <p className="text-gray-400 text-sm">
-                <span className="text-emerald-400 font-semibold">Click to upload</span> or drag and drop
-              </p>
-              <p className="text-gray-600 text-xs">JPG, PNG, GIF — max 500KB</p>
+              <p className="text-gray-400 text-sm"><span className="text-emerald-400 font-semibold">Click to upload</span> or drag and drop</p>
+              <p className="text-gray-600 text-xs">Any image — auto-compressed</p>
             </div>
           </div>
         ) : (
@@ -192,15 +199,14 @@ export default function TicketForm({ onSubmit }) {
                 <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors">Change image</button>
               </div>
             </div>
-            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/gif" className="sr-only" onChange={handleFileChange} aria-label="Replace avatar image" />
+            <input ref={fileInputRef} type="file" accept="image/*" className="sr-only" onChange={handleFileChange} aria-label="Replace avatar image" />
           </div>
         )}
         {errors.avatar
           ? <ErrorMsg id="avatar-error" msg={errors.avatar} />
-          : <p id="avatar-hint" className="mt-1.5 text-gray-600 text-xs">Upload your photo (JPG, PNG, GIF — max 500KB).</p>}
+          : <p id="avatar-hint" className="mt-1.5 text-gray-600 text-xs">Any photo — auto-compressed, works with iOS camera.</p>}
       </div>
 
-      {/* Full Name */}
       <div className="mb-5">
         <label htmlFor="fullName" className="block text-white text-sm font-semibold mb-1.5">Full Name</label>
         <input id="fullName" name="fullName" type="text" autoComplete="name"
@@ -210,19 +216,21 @@ export default function TicketForm({ onSubmit }) {
         {errors.fullName && <ErrorMsg id="fullName-error" msg={errors.fullName} />}
       </div>
 
-      {/* Email */}
       <div className="mb-5">
         <label htmlFor="email" className="block text-white text-sm font-semibold mb-1.5">Email Address</label>
         <input id="email" name="email" type="email" autoComplete="email"
           value={fields.email} onChange={handleChange}
+          readOnly={!!defaultEmail}
           aria-describedby={errors.email ? 'email-error' : 'email-hint'}
-          aria-invalid={!!errors.email} placeholder="example@email.com" className={inputClass('email')} />
+          aria-invalid={!!errors.email} placeholder="example@email.com"
+          className={`${inputClass('email')} ${defaultEmail ? 'opacity-60 cursor-not-allowed' : ''}`} />
         {errors.email
           ? <ErrorMsg id="email-error" msg={errors.email} />
-          : <p id="email-hint" className="mt-1.5 text-gray-600 text-xs">We'll send updates about the event to this address.</p>}
+          : <p id="email-hint" className="mt-1.5 text-gray-600 text-xs">
+              {defaultEmail ? 'Email pre-filled from your account.' : "We'll send updates about the event to this address."}
+            </p>}
       </div>
 
-      {/* GitHub Username */}
       <div className="mb-6">
         <label htmlFor="github" className="block text-white text-sm font-semibold mb-1.5">GitHub Username</label>
         <div className="relative">
@@ -238,36 +246,26 @@ export default function TicketForm({ onSubmit }) {
           : <p id="github-hint" className="mt-1.5 text-gray-600 text-xs">Your GitHub handle — no @ needed.</p>}
       </div>
 
-      {/* Math CAPTCHA */}
       <div className="mb-7 p-4 rounded-xl bg-white/[0.03] border border-white/[0.08]">
         <p className="text-white text-sm font-semibold mb-3">
-          Quick check — what is{' '}
-          <span className="text-emerald-400 font-bold">{captcha.a} + {captcha.b}</span>?
+          Quick check — what is <span className="text-emerald-400 font-bold">{captcha.a} + {captcha.b}</span>?
         </p>
-        <input
-          id="captcha"
-          type="number"
-          inputMode="numeric"
-          value={captchaInput}
+        <input id="captcha" type="number" inputMode="numeric" value={captchaInput}
           onChange={(e) => { setCaptchaInput(e.target.value); if (errors.captcha) setErrors((p) => { const n = { ...p }; delete n.captcha; return n }) }}
           aria-label={`CAPTCHA: What is ${captcha.a} plus ${captcha.b}?`}
           aria-describedby={errors.captcha ? 'captcha-error' : undefined}
-          aria-invalid={!!errors.captcha}
-          placeholder="Enter your answer"
+          aria-invalid={!!errors.captcha} placeholder="Enter your answer"
           className={`w-full bg-white/[0.04] border rounded-xl px-4 py-2.5 text-white placeholder-gray-600 text-sm
             focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all
-            ${errors.captcha ? 'border-red-400 bg-red-500/5' : 'border-white/[0.08]'}`}
-        />
+            ${errors.captcha ? 'border-red-400 bg-red-500/5' : 'border-white/[0.08]'}`} />
         {errors.captcha && <ErrorMsg id="captcha-error" msg={errors.captcha} />}
       </div>
 
-      <button
-        type="submit"
+      <button type="submit"
         className="w-full bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600
           text-white font-bold text-sm rounded-xl py-3.5 px-6
           transition-all duration-200 shadow-lg shadow-emerald-500/20
-          focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#0d0d0d]"
-      >
+          focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#0d0d0d]">
         Generate My Ticket
       </button>
     </form>
