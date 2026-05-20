@@ -59,7 +59,7 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
       />
 
       {/* Modal — bottom sheet on mobile, centered card on sm+ */}
-      <div className="relative z-10 w-full sm:max-w-3xl bg-[#131313] border border-white/[0.08] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] sm:max-h-[90vh] flex flex-col">
+      <div className="relative z-10 w-full sm:max-w-3xl bg-[#131313] border border-white/[0.08] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-x-hidden max-h-[92vh] sm:max-h-[90vh] flex flex-col">
 
         {/* Drag handle (mobile only) */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
