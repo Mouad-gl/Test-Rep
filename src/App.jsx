@@ -26,14 +26,19 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem('favorites')) ?? [] } catch { return [] }
   })
   const [user, setUser] = useState(null)
+  const [authReady, setAuthReady] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
   const [pendingEvent, setPendingEvent] = useState(null)
 
   // Auth session listener
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null)
+      setAuthReady(true)
+    })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ?? null)
+      setAuthReady(true)
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -91,7 +96,7 @@ export default function App() {
   })
 
   const handleGetTicket = (event) => {
-    if (!user) {
+    if (authReady && !user) {
       setPendingEvent(event)
       setModalEvent(null)
       setShowAuth(true)

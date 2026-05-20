@@ -1,7 +1,28 @@
 import { useState, useRef, useCallback } from 'react'
 
-const MAX_FILE_SIZE = 500 * 1024
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif']
+const MAX_FILE_SIZE = 8 * 1024 * 1024 // 8 MB before compression
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/heic', 'image/heif', 'image/webp']
+
+function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const MAX = 600
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * scale)
+        canvas.height = Math.round(img.height * scale)
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve(canvas.toDataURL('image/jpeg', 0.82))
+      }
+      img.onerror = () => resolve(e.target.result)
+      img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
 
 function generateCaptcha() {
   const a = Math.floor(Math.random() * 10) + 1
@@ -46,22 +67,23 @@ export default function TicketForm({ onSubmit, defaultEmail = '' }) {
   const [honeypot, setHoneypot] = useState('')
   const fileInputRef = useRef(null)
 
-  const processFile = (file) => {
+  const processFile = async (file) => {
     if (!file) return
     const errs = { ...errors }
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setErrors({ ...errs, avatar: 'Please upload a JPG, PNG, or GIF image.' })
+    const isImage = file.type.startsWith('image/') || file.name.match(/\.(heic|heif)$/i)
+    if (!isImage) {
+      setErrors({ ...errs, avatar: 'Please upload an image file.' })
       return
     }
     if (file.size > MAX_FILE_SIZE) {
-      setErrors({ ...errs, avatar: 'File too large. Please upload an image under 500KB.' })
+      setErrors({ ...errs, avatar: 'File too large. Please upload an image under 8 MB.' })
       return
     }
     delete errs.avatar
     setErrors(errs)
-    const reader = new FileReader()
-    reader.onload = (e) => { setAvatarPreview(e.target.result); setAvatar(file) }
-    reader.readAsDataURL(file)
+    const dataUrl = await compressImage(file)
+    setAvatarPreview(dataUrl)
+    setAvatar(file)
   }
 
   const handleFileChange = (e) => processFile(e.target.files[0])
@@ -70,7 +92,7 @@ export default function TicketForm({ onSubmit, defaultEmail = '' }) {
     e.preventDefault()
     setDragOver(false)
     processFile(e.dataTransfer.files[0])
-  }, [errors])
+  }, [])
 
   const handleDragOver = (e) => { e.preventDefault(); setDragOver(true) }
   const handleDragLeave = () => setDragOver(false)
@@ -179,7 +201,7 @@ export default function TicketForm({ onSubmit, defaultEmail = '' }) {
               <p className="text-gray-400 text-sm">
                 <span className="text-emerald-400 font-semibold">Click to upload</span> or drag and drop
               </p>
-              <p className="text-gray-600 text-xs">JPG, PNG, GIF — max 500KB</p>
+              <p className="text-gray-600 text-xs">JPG, PNG, GIF, HEIC — auto-compressed</p>
             </div>
           </div>
         ) : (
@@ -197,7 +219,7 @@ export default function TicketForm({ onSubmit, defaultEmail = '' }) {
         )}
         {errors.avatar
           ? <ErrorMsg id="avatar-error" msg={errors.avatar} />
-          : <p id="avatar-hint" className="mt-1.5 text-gray-600 text-xs">Upload your photo (JPG, PNG, GIF — max 500KB).</p>}
+          : <p id="avatar-hint" className="mt-1.5 text-gray-600 text-xs">Upload your photo — auto-compressed, works with all formats including iOS camera.</p>}
       </div>
 
       {/* Full Name */}
