@@ -47,7 +47,7 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-8"
       role="dialog"
       aria-modal="true"
       aria-label={event.title}
@@ -58,8 +58,13 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <div className="relative z-10 w-full max-w-3xl bg-[#131313] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      {/* Modal — bottom sheet on mobile, centered card on sm+ */}
+      <div className="relative z-10 w-full sm:max-w-3xl bg-[#131313] border border-white/[0.08] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] sm:max-h-[90vh] flex flex-col">
+
+        {/* Drag handle (mobile only) */}
+        <div className="flex justify-center pt-3 pb-1 sm:hidden">
+          <div className="w-10 h-1 rounded-full bg-white/20" />
+        </div>
 
         {/* Close button */}
         <button
@@ -79,7 +84,7 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
             className="w-full relative overflow-hidden shrink-0"
             style={{
               background: event.image_url ? '#111' : `linear-gradient(145deg, ${event.color.from} 0%, ${event.color.to} 100%)`,
-              height: '220px',
+              height: '160px',
             }}
           >
             {event.image_url ? (
@@ -95,9 +100,9 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
                   </defs>
                   <rect width="100%" height="100%" fill="url(#mp)" />
                 </svg>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full blur-3xl" style={{ background: event.color.glow }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full blur-3xl" style={{ background: event.color.glow }} />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-2xl flex items-center justify-center border" style={{ background: `${event.color.accent}12`, borderColor: `${event.color.accent}35` }}>
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center border" style={{ background: `${event.color.accent}12`, borderColor: `${event.color.accent}35` }}>
                     <CategoryIcon category={event.category} color={event.color.accent} />
                   </div>
                 </div>
@@ -105,7 +110,7 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
             )}
 
             {/* Category badge */}
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+            <div className="absolute bottom-3 left-0 right-0 flex justify-center">
               <span className="text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm" style={{ background: `${event.color.accent}30`, color: event.color.accent }}>
                 {event.category}
               </span>
@@ -113,12 +118,12 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
           </div>
 
           {/* Bottom: Details */}
-          <div className="flex-1 p-6 sm:p-8 flex flex-col">
+          <div className="flex-1 p-4 sm:p-8 flex flex-col">
 
             {/* Back link */}
             <button
               onClick={onClose}
-              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-400 text-xs mb-5 transition-colors w-fit"
+              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-400 text-xs mb-4 transition-colors w-fit"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -126,41 +131,41 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
               Back to events
             </button>
 
-            {/* Title + countdown on same row */}
-            <div className="flex items-start justify-between gap-4 mb-5">
-              <h2 className="text-white text-[28px] font-extrabold leading-tight">{event.title}</h2>
+            {/* Title */}
+            <h2 className="text-white text-[22px] sm:text-[28px] font-extrabold leading-tight mb-3">{event.title}</h2>
+
+            {/* Countdown */}
+            <div className="mb-4">
               <CountdownTimer dateRaw={event.date_raw} time={event.time} accent={event.color.accent} />
             </div>
 
             {/* Meta */}
-            <div className="space-y-2.5 mb-5">
-              <div className="flex items-start gap-3 text-gray-400 text-base">
+            <div className="space-y-2 mb-4">
+              <div className="flex items-start gap-3 text-gray-400 text-sm">
                 <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                 </svg>
                 <span>{event.date} &nbsp;·&nbsp; {event.time}</span>
               </div>
-              <div className="flex items-start gap-3 text-gray-400 text-base">
+              <div className="flex items-start gap-3 text-gray-400 text-sm">
                 <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                 </svg>
                 <span>{event.location}</span>
               </div>
-              <div className="flex items-center gap-3 text-base">
-                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
-                </svg>
-                <span className="text-[18px] font-bold" style={{ color: event.color.accent }}>{event.price}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500 text-sm">Starting from</span>
+                <span className="text-[17px] font-bold" style={{ color: event.color.accent }}>{event.price}</span>
               </div>
             </div>
 
             {/* Description */}
-            <p className="text-gray-400 text-base leading-relaxed mb-5">{event.description}</p>
+            <p className="text-gray-400 text-sm leading-relaxed mb-4">{event.description}</p>
 
             {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-7">
-              {event.tags.map((tag) => (
+            <div className="flex flex-wrap gap-2 mb-5">
+              {(Array.isArray(event.tags) ? event.tags : []).map((tag) => (
                 <span
                   key={tag}
                   className="text-xs px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/[0.07] text-gray-500"
@@ -171,10 +176,11 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
             </div>
 
             {/* CTA */}
-            <div className="mt-auto flex items-center gap-2">
+            <div className="mt-auto flex flex-col gap-2">
+              {/* Primary: full width */}
               <button
                 onClick={onGetTicket}
-                className="flex-1 py-3.5 px-6 rounded-xl font-bold text-base text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+                className="w-full py-3.5 px-6 rounded-xl font-bold text-base text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
                 style={{
                   background: event.color.button,
                   boxShadow: `0 8px 24px ${event.color.glow}`,
@@ -182,32 +188,38 @@ export default function EventModal({ event, onClose, onGetTicket, isFavorited, o
               >
                 Get Your Ticket →
               </button>
-              <button
-                onClick={onGetTicket}
-                className="py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-white/[0.08] hover:bg-white/[0.13] border border-white/[0.10] transition-all duration-200 active:scale-[0.98] whitespace-nowrap"
-              >
-                Add to Cart
-              </button>
-              <button
-                onClick={onToggleFavorite}
-                className="py-3.5 px-3.5 rounded-xl border transition-all duration-200 active:scale-[0.95] flex items-center justify-center"
-                style={{
-                  background: isFavorited ? 'rgba(244,63,94,0.15)' : 'rgba(255,255,255,0.05)',
-                  borderColor: isFavorited ? 'rgba(244,63,94,0.4)' : 'rgba(255,255,255,0.10)',
-                }}
-                aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-              >
-                <svg
-                  className="w-5 h-5 transition-colors"
-                  fill={isFavorited ? 'currentColor' : 'none'}
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.8}
-                  style={{ color: isFavorited ? '#f43f5e' : '#9ca3af' }}
+              {/* Secondary row */}
+              <div className="flex gap-2">
+                <button
+                  onClick={onGetTicket}
+                  className="flex-1 py-3 px-4 rounded-xl font-bold text-sm text-white bg-white/[0.08] hover:bg-white/[0.13] border border-white/[0.10] transition-all duration-200 active:scale-[0.98]"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                </svg>
-              </button>
+                  Add to Cart
+                </button>
+                <button
+                  onClick={onToggleFavorite}
+                  className="py-3 px-4 rounded-xl border transition-all duration-200 active:scale-[0.95] flex items-center justify-center gap-1.5"
+                  style={{
+                    background: isFavorited ? 'rgba(244,63,94,0.15)' : 'rgba(255,255,255,0.05)',
+                    borderColor: isFavorited ? 'rgba(244,63,94,0.4)' : 'rgba(255,255,255,0.10)',
+                  }}
+                  aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  <svg
+                    className="w-5 h-5 transition-colors"
+                    fill={isFavorited ? 'currentColor' : 'none'}
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                    style={{ color: isFavorited ? '#f43f5e' : '#9ca3af' }}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
+                  <span className="text-xs font-semibold" style={{ color: isFavorited ? '#f43f5e' : '#9ca3af' }}>
+                    {isFavorited ? 'Saved' : 'Save'}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
