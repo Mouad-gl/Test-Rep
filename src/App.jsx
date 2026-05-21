@@ -8,7 +8,6 @@ import BackgroundPattern from './components/BackgroundPattern'
 import Footer from './components/Footer'
 import FeaturedSlider from './components/FeaturedSlider'
 import AuthModal from './components/AuthModal'
-import WheelPage from './pages/WheelPage'
 import { supabase } from './lib/supabase'
 import { fallbackEvents, colorForCategory, categories } from './data/events'
 import './App.css'
@@ -142,11 +141,6 @@ export default function App() {
     })
   }
 
-  // ── Lucky Wheel standalone page ──────────────────────────────────────────
-  if (view === 'wheel') {
-    return <WheelPage onBack={handleBack} />
-  }
-
   return (
     <div className="relative min-h-screen bg-[#0d0d0d] font-sans">
       <BackgroundPattern />
@@ -176,27 +170,6 @@ export default function App() {
 
             {!searchQuery && activeCategory === 'All' && !activeTag && (
               <FeaturedSlider events={events} onEventClick={setModalEvent} />
-            )}
-
-            {!searchQuery && activeCategory === 'All' && !activeTag && (
-              <button
-                onClick={() => setView('wheel')}
-                className="w-full mb-6 flex items-center justify-between px-5 py-4 rounded-2xl
-                           border border-emerald-500/25 bg-emerald-500/8 hover:bg-emerald-500/14
-                           transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🎡</span>
-                  <div className="text-left">
-                    <p className="text-white font-bold text-sm">Lucky Wheel</p>
-                    <p className="text-gray-500 text-xs">Spin to win exclusive rewards</p>
-                  </div>
-                </div>
-                <svg className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform"
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
             )}
 
             <div className="flex items-end justify-between mb-6 gap-4">
